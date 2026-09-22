@@ -6,7 +6,7 @@ export default function TiltCard({ children, className = "", strength = 10, ...r
   const glowX = useSpring(50, { stiffness: 200, damping: 30 });
   const glowY = useSpring(50, { stiffness: 200, damping: 30 });
   const transform = useMotionTemplate`perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-  const glowBg = useMotionTemplate`radial-gradient(220px circle at ${glowX}% ${glowY}%, rgba(56,189,248,0.12), transparent 70%)`;
+  const glowBg = useMotionTemplate`radial-gradient(220px circle at ${glowX}% ${glowY}%, rgba(201,168,118,0.12), transparent 70%)`;
 
   const handleMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();

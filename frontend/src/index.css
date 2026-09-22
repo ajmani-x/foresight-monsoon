@@ -4,19 +4,20 @@
   --font-display: "Unbounded", "Inter", sans-serif;
   --font-body: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-serif: "Instrument Serif", Georgia, serif;
 
-  --color-ink: #06070c;
-  --color-surface: #0b0d16;
-  --color-surface-2: #10131f;
-  --color-surface-3: #161a29;
-  --color-border: #232842;
-  --color-mist: #7d84a3;
-  --color-fog: #a9aec8;
-  --color-paper: #f1f2f9;
+  --color-ink: #0a0908;
+  --color-surface: #100f0d;
+  --color-surface-2: #151311;
+  --color-surface-3: #1c1a17;
+  --color-border: #2b2823;
+  --color-mist: #8c857a;
+  --color-fog: #b8b2a6;
+  --color-paper: #f3efe6;
 
-  --color-monsoon: #6c5ce7;
-  --color-monsoon-dim: #4834b0;
-  --color-monsoon-glow: #38bdf8;
+  --color-monsoon: #c9a876;
+  --color-monsoon-dim: #8a6d3f;
+  --color-monsoon-glow: #e6c98a;
 
   --color-amber: #fbbf24;
   --color-amber-dim: #b9860e;
@@ -54,7 +55,7 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(120deg, var(--color-monsoon-glow), var(--color-monsoon) 55%, #c084fc);
+  background: linear-gradient(120deg, var(--color-monsoon-glow), var(--color-monsoon) 60%, #7a6248);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
