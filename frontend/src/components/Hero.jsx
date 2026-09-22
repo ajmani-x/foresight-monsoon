@@ -4,12 +4,14 @@ import { ArrowDownRight, Sparkles } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
 import HeroScene from "./HeroScene";
 
+const INTRO_DELAY = 3.4;
+
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   show: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.08, duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+    transition: { delay: INTRO_DELAY + i * 0.08, duration: 0.7, ease: [0.16, 1, 0.3, 1] },
   }),
 };
 
@@ -18,7 +20,7 @@ const words2 = ["block", "by", "block."];
 
 const wordContainer = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.09, delayChildren: 0.15 } },
+  show: { transition: { staggerChildren: 0.09, delayChildren: INTRO_DELAY + 0.15 } },
 };
 
 const wordItem = {
@@ -145,7 +147,7 @@ export default function Hero({ summary }) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.1, duration: 0.8 }}
+        transition={{ delay: INTRO_DELAY + 1.1, duration: 0.8 }}
         className="relative mt-16 border-y border-border/60 py-3 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]"
       >
         <motion.div
@@ -165,7 +167,7 @@ export default function Hero({ summary }) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 0.8 }}
+        transition={{ delay: INTRO_DELAY + 1.4, duration: 0.8 }}
         className="hidden md:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-2"
       >
         <span className="text-[10.5px] uppercase tracking-[0.2em] text-mist">Scroll</span>
