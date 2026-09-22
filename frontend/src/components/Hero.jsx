@@ -3,8 +3,9 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDownRight } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
 import HeroScene from "./HeroScene";
+import RainBackground from "./RainBackground";
 
-const INTRO_DELAY = 2.5;
+const INTRO_DELAY = 1.5;
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -54,6 +55,7 @@ export default function Hero({ summary }) {
   return (
     <section ref={ref} className="relative overflow-hidden pt-40 pb-28 px-6 lg:px-10">
       <HeroScene />
+      <RainBackground />
       <FloatingBlobs y1={blobY1} y2={blobY2} />
 
       <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto max-w-7xl">
