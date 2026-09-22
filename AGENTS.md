@@ -82,8 +82,12 @@ function names/signatures/return shape stable so nothing downstream needs to cha
 
 ## Known gaps / not yet wired
 
-See the "What's left" list the assistant maintains in conversation — as of the last
-pass: real trained models (M2-M4), deployment config for Render/Vercel, a real
-WhatsApp/SMS gateway integration, git init, and production CORS/env-based API URL
-(frontend currently relies on the Vite dev proxy for `/api`, which does not exist
-in a production build).
+- Real trained models (teleconnection encoder, GNN, TFT, calibration ensemble) —
+  `backend/app/models/` is currently empty
+- Deployment config for Render/Vercel (backend start command, frontend env-based
+  API URL — the frontend currently relies on the Vite dev proxy for `/api`, which
+  does not exist in a production build)
+- Production CORS restricted to the deployed frontend origin (currently `*`)
+- Real WhatsApp/SMS gateway integration (currently UI-only)
+- District adjacency graph data for the spatial GNN
+- Automated tests
