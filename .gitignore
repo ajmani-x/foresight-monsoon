@@ -19,3 +19,4 @@ frontend/.vite/
 # Env
 .env
 .env.local
+AGENTS.md
