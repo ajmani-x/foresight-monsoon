@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { CloudRain } from "lucide-react";
 
 const links = [
   { href: "#map", label: "Risk Map" },
@@ -9,48 +9,46 @@ const links = [
 ];
 
 export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 120);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <motion.header
-      initial={{ y: -60, opacity: 0 }}
+      initial={{ y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 inset-x-0 z-30 border-b border-white/5 bg-ink/70 backdrop-blur-xl"
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className={`fixed top-0 inset-x-0 z-30 transition-[background-color,backdrop-filter,border-color] duration-500 ${
+        scrolled ? "bg-ink/75 backdrop-blur-xl border-b border-white/5" : "border-b border-transparent"
+      }`}
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-10 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <motion.div
-            initial={{ rotate: -20, scale: 0.6, opacity: 0 }}
-            animate={{ rotate: 0, scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6, type: "spring", stiffness: 180 }}
-            className="h-8 w-8 rounded-lg bg-monsoon/15 border border-monsoon/30 flex items-center justify-center"
-          >
-            <CloudRain size={16} className="text-monsoon-glow" strokeWidth={2.2} />
-          </motion.div>
-          <span className="font-display font-semibold tracking-tight text-paper text-[15px]">
-            Foresight
-          </span>
-          <span className="hidden sm:inline text-[11px] text-mist border border-border rounded-full px-2 py-0.5 ml-1">
-            SIH26086
-          </span>
-        </div>
+      <div
+        className={`mx-auto max-w-7xl px-6 lg:px-10 flex items-center justify-between transition-[height] duration-500 ${
+          scrolled ? "h-16" : "h-20"
+        } ${scrolled ? "" : "[text-shadow:0_1px_12px_rgba(6,7,12,0.9)]"}`}
+      >
+        <span className="font-display font-medium tracking-tight text-paper text-[15px]">
+          Foresight
+          <span className="ml-2 font-mono text-[10px] text-mist align-middle">SIH26086</span>
+        </span>
 
-        <nav className="hidden md:flex items-center gap-8 text-[13px] text-fog">
+        <nav className="flex items-center gap-6 md:gap-9 text-[13px] text-fog">
           {links.map((link) => (
-            <a key={link.href} href={link.href} className="group relative py-1">
+            <a key={link.href} href={link.href} className="group relative hidden md:inline py-1">
               {link.label}
               <span className="absolute left-0 -bottom-0.5 h-px w-0 bg-monsoon-glow transition-all duration-300 ease-out group-hover:w-full" />
             </a>
           ))}
+          <a href="#map" className="relative py-1 text-monsoon-glow">
+            View live map
+            <span className="absolute left-0 -bottom-0.5 h-px w-full bg-monsoon-glow/50" />
+          </a>
         </nav>
-
-        <motion.a
-          href="#map"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          className="text-[13px] font-medium bg-paper text-ink rounded-full px-4 py-2 hover:bg-monsoon-glow transition-colors"
-        >
-          View Live Map
-        </motion.a>
       </div>
     </motion.header>
   );
