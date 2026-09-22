@@ -42,7 +42,7 @@ export default function App() {
       <CursorGlow />
       <Navbar />
       <main>
-        <Hero summary={summary} />
+        <Hero summary={summary} climate={climate} />
         <ClimateBar climate={climate} />
         <RiskMap districts={districts} selectedId={selectedId} onSelect={handleSelect} />
         <ForecastPanel districtId={selectedId} />

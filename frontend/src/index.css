@@ -65,6 +65,40 @@ body {
   transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.blueprint-grid {
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.18;
+}
+
+.corner-frame {
+  position: relative;
+}
+.corner-frame::before,
+.corner-frame::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+}
+.corner-frame::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1.5px solid var(--color-monsoon-glow);
+  border-left: 1.5px solid var(--color-monsoon-glow);
+  opacity: 0.7;
+}
+.corner-frame::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 1.5px solid var(--color-monsoon-glow);
+  border-right: 1.5px solid var(--color-monsoon-glow);
+  opacity: 0.7;
+}
+
 .noise-overlay {
   position: fixed;
   inset: 0;
