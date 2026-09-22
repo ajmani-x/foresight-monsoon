@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowDownRight, Sparkles } from "lucide-react";
+import { ArrowDownRight } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
 import HeroScene from "./HeroScene";
 
@@ -62,15 +62,15 @@ export default function Hero({ summary }) {
           animate="show"
           custom={0}
           variants={fadeUp}
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3.5 py-1.5 text-[12px] text-fog mb-8"
+          className="flex items-center gap-3 mb-10"
         >
-          <motion.span
-            animate={{ rotate: [0, 15, -10, 0] }}
-            transition={{ duration: 2.4, repeat: Infinity, repeatDelay: 1.2, ease: "easeInOut" }}
-          >
-            <Sparkles size={13} className="text-monsoon-glow" />
-          </motion.span>
-          Hybrid DL forecasting for NCMRWF · Ministry of Earth Sciences
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-monsoon-glow opacity-60" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-monsoon-glow" />
+          </span>
+          <span className="font-mono text-[10.5px] tracking-[0.22em] uppercase text-mist">
+            NCMRWF · Ministry of Earth Sciences <span className="text-fog">/ Model live</span>
+          </span>
         </motion.div>
 
         <h1 className="font-display font-medium tracking-tighter text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[1.02] text-paper max-w-5xl">

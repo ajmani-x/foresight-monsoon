@@ -3,6 +3,7 @@
 @theme {
   --font-display: "Unbounded", "Inter", sans-serif;
   --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --color-ink: #06070c;
   --color-surface: #0b0d16;
