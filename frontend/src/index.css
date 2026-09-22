@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Space Grotesk", "Inter", sans-serif;
+  --font-display: "Bricolage Grotesque", "Inter", sans-serif;
   --font-body: "Inter", sans-serif;
 
-  --color-ink: #05070a;
-  --color-surface: #0b0f14;
-  --color-surface-2: #10161d;
-  --color-surface-3: #161e27;
-  --color-border: #212b35;
-  --color-mist: #7c8b99;
-  --color-fog: #a8b5c0;
-  --color-paper: #eef2f5;
+  --color-ink: #06070c;
+  --color-surface: #0b0d16;
+  --color-surface-2: #10131f;
+  --color-surface-3: #161a29;
+  --color-border: #232842;
+  --color-mist: #7d84a3;
+  --color-fog: #a9aec8;
+  --color-paper: #f1f2f9;
 
-  --color-monsoon: #1fb3a3;
-  --color-monsoon-dim: #14776c;
-  --color-monsoon-glow: #5fe3d3;
+  --color-monsoon: #6c5ce7;
+  --color-monsoon-dim: #4834b0;
+  --color-monsoon-glow: #38bdf8;
 
-  --color-amber: #f5a524;
-  --color-amber-dim: #b97815;
+  --color-amber: #fbbf24;
+  --color-amber-dim: #b9860e;
 
-  --color-rose: #f0546b;
-  --color-rose-dim: #a83648;
+  --color-rose: #fb5b7c;
+  --color-rose-dim: #b53357;
 }
 
 html {
@@ -53,7 +53,7 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(120deg, var(--color-monsoon-glow), var(--color-monsoon) 60%, var(--color-amber));
+  background: linear-gradient(120deg, var(--color-monsoon-glow), var(--color-monsoon) 55%, #c084fc);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

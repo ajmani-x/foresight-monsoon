@@ -32,12 +32,12 @@ export default function RiskMap({ districts, selectedId, onSelect }) {
                       <Geography
                         key={geo.rsmKey}
                         geography={geo}
-                        fill="#10161d"
-                        stroke="#212b35"
+                        fill="#10131f"
+                        stroke="#232842"
                         strokeWidth={0.6}
                         style={{
                           default: { outline: "none" },
-                          hover: { outline: "none", fill: "#161e27" },
+                          hover: { outline: "none", fill: "#161a29" },
                           pressed: { outline: "none" },
                         }}
                       />
@@ -80,7 +80,7 @@ export default function RiskMap({ districts, selectedId, onSelect }) {
                       r={isSelected ? 7 : 4.5}
                       fill={meta.color}
                       fillOpacity={isSelected ? 1 : 0.85}
-                      stroke="#05070a"
+                      stroke="#06070c"
                       strokeWidth={isSelected ? 2 : 1}
                       style={{ cursor: "pointer", transformOrigin: "center" }}
                     />
@@ -141,9 +141,9 @@ export default function RiskMap({ districts, selectedId, onSelect }) {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  <ProbRow label="Onset probability" value={active.onset_probability} color="#5fe3d3" />
-                  <ProbRow label="Break probability" value={active.break_probability} color="#f0546b" />
-                  <ProbRow label="Heavy rain probability" value={active.heavy_rain_probability} color="#f5a524" />
+                  <ProbRow label="Onset probability" value={active.onset_probability} color="#38bdf8" />
+                  <ProbRow label="Break probability" value={active.break_probability} color="#fb5b7c" />
+                  <ProbRow label="Heavy rain probability" value={active.heavy_rain_probability} color="#fbbf24" />
                 </div>
 
                 <button

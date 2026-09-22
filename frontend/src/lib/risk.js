@@ -1,35 +1,35 @@
 export const RISK_META = {
   break_risk: {
     label: "Break Risk",
-    color: "#f0546b",
-    dim: "#a83648",
+    color: "#fb5b7c",
+    dim: "#b53357",
     description: "High probability of an extended dry spell",
   },
   heavy_rain_risk: {
     label: "Heavy Rain Risk",
-    color: "#f5a524",
-    dim: "#b97815",
+    color: "#fbbf24",
+    dim: "#b9860e",
     description: "High probability of heavy downpour",
   },
   onset_favorable: {
     label: "Favorable Onset",
-    color: "#5fe3d3",
-    dim: "#1fb3a3",
+    color: "#38bdf8",
+    dim: "#6c5ce7",
     description: "Conditions favor monsoon onset / sowing",
   },
   normal: {
     label: "Normal",
-    color: "#7c8b99",
+    color: "#7d84a3",
     dim: "#4a5762",
     description: "No significant anomaly detected",
   },
 };
 
 export const SEVERITY_META = {
-  critical: { label: "Critical", color: "#f0546b" },
-  warning: { label: "Warning", color: "#f5a524" },
-  caution: { label: "Caution", color: "#f5a524" },
-  info: { label: "Info", color: "#5fe3d3" },
+  critical: { label: "Critical", color: "#fb5b7c" },
+  warning: { label: "Warning", color: "#fbbf24" },
+  caution: { label: "Caution", color: "#fbbf24" },
+  info: { label: "Info", color: "#38bdf8" },
 };
 
 export function pct(value) {

@@ -65,37 +65,37 @@ export default function ForecastPanel({ districtId }) {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="onset" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#5fe3d3" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#5fe3d3" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#38bdf8" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="brk" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f0546b" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#f0546b" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#fb5b7c" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#fb5b7c" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="heavy" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f5a524" stopOpacity={0.25} />
-                      <stop offset="100%" stopColor="#f5a524" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="#fbbf24" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#212b35" vertical={false} />
-                  <XAxis dataKey="date" stroke="#7c8b99" fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#7c8b99" fontSize={11} tickLine={false} axisLine={false} unit="%" width={40} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#232842" vertical={false} />
+                  <XAxis dataKey="date" stroke="#7d84a3" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#7d84a3" fontSize={11} tickLine={false} axisLine={false} unit="%" width={40} />
                   <Tooltip
                     contentStyle={{
-                      background: "#0b0f14",
-                      border: "1px solid #212b35",
+                      background: "#0b0d16",
+                      border: "1px solid #232842",
                       borderRadius: 12,
                       fontSize: 12.5,
                     }}
-                    labelStyle={{ color: "#eef2f5" }}
+                    labelStyle={{ color: "#f1f2f9" }}
                   />
-                  <Legend wrapperStyle={{ fontSize: 12, color: "#a8b5c0" }} />
-                  <Area type="monotone" dataKey="Onset" stroke="#5fe3d3" fill="url(#onset)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="Break" stroke="#f0546b" fill="url(#brk)" strokeWidth={2} />
+                  <Legend wrapperStyle={{ fontSize: 12, color: "#a9aec8" }} />
+                  <Area type="monotone" dataKey="Onset" stroke="#38bdf8" fill="url(#onset)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="Break" stroke="#fb5b7c" fill="url(#brk)" strokeWidth={2} />
                   <Area
                     type="monotone"
                     dataKey="Heavy rain"
-                    stroke="#f5a524"
+                    stroke="#fbbf24"
                     fill="url(#heavy)"
                     strokeWidth={2}
                   />
@@ -182,9 +182,9 @@ export default function ForecastPanel({ districtId }) {
 
             {forecast && (
               <div className="mt-5 grid grid-cols-3 gap-2 text-center">
-                <MiniStat label="Onset" value={forecast.current.onset_probability} color="#5fe3d3" />
-                <MiniStat label="Break" value={forecast.current.break_probability} color="#f0546b" />
-                <MiniStat label="Heavy" value={forecast.current.heavy_rain_probability} color="#f5a524" />
+                <MiniStat label="Onset" value={forecast.current.onset_probability} color="#38bdf8" />
+                <MiniStat label="Break" value={forecast.current.break_probability} color="#fb5b7c" />
+                <MiniStat label="Heavy" value={forecast.current.heavy_rain_probability} color="#fbbf24" />
               </div>
             )}
           </motion.div>
