@@ -4,7 +4,7 @@ import { ArrowDownRight, Sparkles } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
 import HeroScene from "./HeroScene";
 
-const INTRO_DELAY = 3.4;
+const INTRO_DELAY = 2.5;
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
