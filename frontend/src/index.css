@@ -59,6 +59,10 @@ body {
   color: transparent;
 }
 
+.map-zoom-animating .rsm-zoomable-group {
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .noise-overlay {
   position: fixed;
   inset: 0;

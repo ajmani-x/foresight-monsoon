@@ -1,12 +1,35 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
 import { RISK_META, pct } from "../lib/risk";
 import indiaTopo from "../assets/india-districts.json";
 
+const DEFAULT_CENTER = [82.8, 22.5];
+const DEFAULT_ZOOM = 1;
+const CLOSEUP_ZOOM = 4.5;
+
 export default function RiskMap({ districts, selectedId, onSelect }) {
   const [hovered, setHovered] = useState(null);
+  const [mapCenter, setMapCenter] = useState(DEFAULT_CENTER);
+  const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
+  const [isAnimating, setIsAnimating] = useState(false);
   const active = hovered ?? districts.find((d) => d.district_id === selectedId) ?? null;
+  const isZoomedIn = mapZoom > DEFAULT_ZOOM;
+
+  const animateTo = (center, zoom) => {
+    setIsAnimating(true);
+    setMapCenter(center);
+    setMapZoom(zoom);
+    window.clearTimeout(animateTo._t);
+    animateTo._t = window.setTimeout(() => setIsAnimating(false), 900);
+  };
+
+  const focusDistrict = (d) => {
+    animateTo([d.lon, d.lat], CLOSEUP_ZOOM);
+    onSelect(d.district_id);
+  };
+
+  const resetView = () => animateTo(DEFAULT_CENTER, DEFAULT_ZOOM);
 
   return (
     <section id="map" className="px-6 lg:px-10 py-24">
@@ -18,86 +41,100 @@ export default function RiskMap({ districts, selectedId, onSelect }) {
         />
 
         <div className="mt-10 grid lg:grid-cols-[1fr_320px] gap-6">
-          <div className="relative rounded-3xl border border-border bg-surface/50 overflow-hidden">
+          <div
+            className={`relative rounded-3xl border border-border bg-surface/50 overflow-hidden ${isAnimating ? "map-zoom-animating" : ""}`}
+          >
             <ComposableMap
               projection="geoMercator"
-              projectionConfig={{ center: [82.8, 22.5], scale: 1050 }}
+              projectionConfig={{ center: DEFAULT_CENTER, scale: 1050 }}
               width={800}
               height={780}
               style={{ width: "100%", height: "auto" }}
             >
-              <Geographies geography={indiaTopo}>
-                {({ geographies }) =>
-                  geographies.map((geo) => (
-                      <Geography
-                        key={geo.rsmKey}
-                        geography={geo}
-                        fill="#10131f"
-                        stroke="#232842"
-                        strokeWidth={0.6}
-                        style={{
-                          default: { outline: "none" },
-                          hover: { outline: "none", fill: "#161a29" },
-                          pressed: { outline: "none" },
-                        }}
-                      />
-                    ))
-                }
-              </Geographies>
+              <ZoomableGroup
+                center={mapCenter}
+                zoom={mapZoom}
+                minZoom={1}
+                maxZoom={8}
+                onMoveStart={() => setIsAnimating(false)}
+                onMoveEnd={({ coordinates, zoom }) => {
+                  setMapCenter(coordinates);
+                  setMapZoom(zoom);
+                }}
+              >
+                <Geographies geography={indiaTopo}>
+                  {({ geographies }) =>
+                    geographies.map((geo) => (
+                        <Geography
+                          key={geo.rsmKey}
+                          geography={geo}
+                          fill="#10131f"
+                          stroke="#232842"
+                          strokeWidth={0.6 / mapZoom}
+                          style={{
+                            default: { outline: "none" },
+                            hover: { outline: "none", fill: "#161a29" },
+                            pressed: { outline: "none" },
+                          }}
+                        />
+                      ))
+                  }
+                </Geographies>
 
-              {districts.map((d) => {
-                const meta = RISK_META[d.risk_level] ?? RISK_META.normal;
-                const isSelected = d.district_id === selectedId;
-                return (
-                  <Marker
-                    key={d.district_id}
-                    coordinates={[d.lon, d.lat]}
-                    onClick={() => onSelect(d.district_id)}
-                    onMouseEnter={() => setHovered(d)}
-                    onMouseLeave={() => setHovered(null)}
-                    style={{ default: { cursor: "pointer" } }}
-                  >
-                    {d.risk_level === "break_risk" && (
+                {districts.map((d) => {
+                  const meta = RISK_META[d.risk_level] ?? RISK_META.normal;
+                  const isSelected = d.district_id === selectedId;
+                  return (
+                    <Marker
+                      key={d.district_id}
+                      coordinates={[d.lon, d.lat]}
+                      onClick={() => focusDistrict(d)}
+                      onMouseEnter={() => setHovered(d)}
+                      onMouseLeave={() => setHovered(null)}
+                      style={{ default: { cursor: "pointer" } }}
+                    >
+                      {d.risk_level === "break_risk" && (
+                        <motion.circle
+                          fill="none"
+                          stroke={meta.color}
+                          strokeWidth={1.5 / mapZoom}
+                          initial={{ r: 4.5 / mapZoom, opacity: 0.6 }}
+                          animate={{ r: [4.5 / mapZoom, 13 / mapZoom, 4.5 / mapZoom], opacity: [0.6, 0, 0.6] }}
+                          transition={{
+                            duration: 2.6,
+                            repeat: Infinity,
+                            ease: "easeOut",
+                            delay: (d.lat + d.lon) % 2,
+                          }}
+                        />
+                      )}
                       <motion.circle
-                        fill="none"
-                        stroke={meta.color}
-                        strokeWidth={1.5}
-                        initial={{ r: 4.5, opacity: 0.6 }}
-                        animate={{ r: [4.5, 13, 4.5], opacity: [0.6, 0, 0.6] }}
-                        transition={{
-                          duration: 2.6,
-                          repeat: Infinity,
-                          ease: "easeOut",
-                          delay: (d.lat + d.lon) % 2,
-                        }}
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.4 + Math.random() * 0.6, duration: 0.5, type: "spring", stiffness: 220 }}
+                        whileHover={{ scale: 1.5 }}
+                        r={(isSelected ? 7 : 4.5) / mapZoom}
+                        fill={meta.color}
+                        fillOpacity={isSelected ? 1 : 0.85}
+                        stroke="#06070c"
+                        strokeWidth={(isSelected ? 2 : 1) / mapZoom}
+                        style={{ cursor: "pointer", transformOrigin: "center" }}
                       />
-                    )}
-                    <motion.circle
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.4 + Math.random() * 0.6, duration: 0.5, type: "spring", stiffness: 220 }}
-                      whileHover={{ scale: 1.5 }}
-                      r={isSelected ? 7 : 4.5}
-                      fill={meta.color}
-                      fillOpacity={isSelected ? 1 : 0.85}
-                      stroke="#06070c"
-                      strokeWidth={isSelected ? 2 : 1}
-                      style={{ cursor: "pointer", transformOrigin: "center" }}
-                    />
-                    {isSelected && (
-                      <motion.circle
-                        r={12}
-                        fill="none"
-                        stroke={meta.color}
-                        strokeWidth={1.2}
-                        initial={{ opacity: 0, scale: 0.6 }}
-                        animate={{ opacity: 0.5, scale: 1 }}
-                        transition={{ duration: 0.4 }}
-                      />
-                    )}
-                  </Marker>
-                );
-              })}
+                      {isSelected && (
+                        <motion.circle
+                          r={12 / mapZoom}
+                          fill="none"
+                          stroke={meta.color}
+                          strokeWidth={1.2 / mapZoom}
+                          initial={{ opacity: 0, scale: 0.6 }}
+                          animate={{ opacity: 0.5, scale: 1 }}
+                          transition={{ duration: 0.4 }}
+                        />
+                      )}
+                    </Marker>
+                  );
+                })}
+              </ZoomableGroup>
             </ComposableMap>
 
             <div className="absolute bottom-4 left-4 flex flex-wrap gap-3 rounded-xl border border-border bg-ink/80 backdrop-blur px-4 py-2.5">
@@ -108,6 +145,21 @@ export default function RiskMap({ districts, selectedId, onSelect }) {
                 </div>
               ))}
             </div>
+
+            <AnimatePresence>
+              {isZoomedIn && (
+                <motion.button
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  onClick={resetView}
+                  className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-ink/80 backdrop-blur px-3.5 py-1.5 text-[11.5px] text-fog hover:text-paper hover:border-mist transition-colors"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-monsoon-glow" />
+                  Reset view
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="rounded-3xl border border-border bg-surface/60 p-5 lg:sticky lg:top-24 h-fit overflow-hidden">
