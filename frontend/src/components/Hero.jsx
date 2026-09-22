@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDownRight, Sparkles } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
-import RainBackground from "./RainBackground";
+import HeroScene from "./HeroScene";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -51,7 +51,7 @@ export default function Hero({ summary }) {
 
   return (
     <section ref={ref} className="relative overflow-hidden pt-40 pb-28 px-6 lg:px-10">
-      <RainBackground />
+      <HeroScene />
       <FloatingBlobs y1={blobY1} y2={blobY2} />
 
       <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto max-w-7xl">
@@ -71,7 +71,7 @@ export default function Hero({ summary }) {
           Hybrid DL forecasting for NCMRWF · Ministry of Earth Sciences
         </motion.div>
 
-        <h1 className="font-display font-semibold tracking-tight text-[clamp(2.6rem,6vw,5.5rem)] leading-[0.98] text-paper max-w-5xl">
+        <h1 className="font-display font-medium tracking-tighter text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[1.02] text-paper max-w-5xl">
           <motion.span
             initial="hidden"
             animate="show"
