@@ -35,7 +35,7 @@ export default function CursorGlow() {
           translateX: "-50%",
           translateY: "-50%",
           background:
-            "radial-gradient(circle, rgba(201,168,118,0.10) 0%, rgba(147,120,74,0.05) 45%, transparent 70%)",
+            "radial-gradient(circle, rgba(109,94,245,0.10) 0%, rgba(244,95,194,0.05) 45%, transparent 70%)",
         }}
       />
       <motion.div
@@ -43,8 +43,8 @@ export default function CursorGlow() {
         animate={{
           opacity: visible ? 1 : 0,
           scale: hovering ? 2.4 : 1,
-          backgroundColor: hovering ? "rgba(201,168,118,0.15)" : "rgba(201,168,118,0)",
-          borderColor: hovering ? "rgba(201,168,118,0.8)" : "rgba(184,178,166,0.6)",
+          backgroundColor: hovering ? "rgba(109,94,245,0.15)" : "rgba(109,94,245,0)",
+          borderColor: hovering ? "rgba(109,94,245,0.8)" : "rgba(174,178,199,0.6)",
         }}
         transition={{ scale: { type: "spring", stiffness: 300, damping: 20 } }}
         className="pointer-events-none fixed z-50 h-6 w-6 rounded-full border hidden md:block"

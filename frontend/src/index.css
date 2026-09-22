@@ -4,20 +4,21 @@
   --font-display: "Unbounded", "Inter", sans-serif;
   --font-body: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --font-serif: "Instrument Serif", Georgia, serif;
 
-  --color-ink: #0a0908;
-  --color-surface: #100f0d;
-  --color-surface-2: #151311;
-  --color-surface-3: #1c1a17;
-  --color-border: #2b2823;
-  --color-mist: #8c857a;
-  --color-fog: #b8b2a6;
-  --color-paper: #f3efe6;
+  --color-ink: #08090f;
+  --color-surface: #0d0f18;
+  --color-surface-2: #12141f;
+  --color-surface-3: #191c2b;
+  --color-border: #262a3d;
+  --color-mist: #82869e;
+  --color-fog: #aeb2c7;
+  --color-paper: #f5f6fb;
 
-  --color-monsoon: #c9a876;
-  --color-monsoon-dim: #8a6d3f;
-  --color-monsoon-glow: #e6c98a;
+  --color-monsoon: #6d5ef5;
+  --color-monsoon-dim: #4634c4;
+  --color-monsoon-glow: #7bc9ff;
+
+  --color-pink: #f45fc2;
 
   --color-amber: #fbbf24;
   --color-amber-dim: #b9860e;
@@ -55,7 +56,7 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(120deg, var(--color-monsoon-glow), var(--color-monsoon) 60%, #7a6248);
+  background: linear-gradient(120deg, var(--color-monsoon-glow), var(--color-monsoon) 55%, var(--color-pink));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -63,40 +64,6 @@ body {
 
 .map-zoom-animating .rsm-zoomable-group {
   transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.blueprint-grid {
-  background-image:
-    linear-gradient(var(--color-border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
-  background-size: 56px 56px;
-  opacity: 0.18;
-}
-
-.corner-frame {
-  position: relative;
-}
-.corner-frame::before,
-.corner-frame::after {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  pointer-events: none;
-}
-.corner-frame::before {
-  top: -1px;
-  left: -1px;
-  border-top: 1.5px solid var(--color-monsoon-glow);
-  border-left: 1.5px solid var(--color-monsoon-glow);
-  opacity: 0.7;
-}
-.corner-frame::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 1.5px solid var(--color-monsoon-glow);
-  border-right: 1.5px solid var(--color-monsoon-glow);
-  opacity: 0.7;
 }
 
 .noise-overlay {

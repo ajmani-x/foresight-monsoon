@@ -5,11 +5,11 @@ import * as THREE from "three";
 // "weather system" of drifting particles, echoing scattered nebulae
 // against a deep-space starfield rather than a single uniform cloud.
 const CLUSTERS = [
-  { pos: [-6.5, 3.2, -3], radius: 2.4, count: 340, color: [0.79, 0.66, 0.46] }, // warm gold
-  { pos: [6, 4, -6], radius: 2.1, count: 300, color: [0.9, 0.79, 0.54] }, // pale gold
-  { pos: [-7.5, -3.5, -8], radius: 2.6, count: 320, color: [0.6, 0.5, 0.38] }, // bronze
-  { pos: [7.5, -3, -4], radius: 2.0, count: 260, color: [0.83, 0.75, 0.63] }, // cream
-  { pos: [0, -4.5, -10], radius: 2.8, count: 300, color: [0.79, 0.66, 0.46] },
+  { pos: [-6.5, 3.2, -3], radius: 2.4, count: 340, color: [0.43, 0.37, 0.96] }, // indigo
+  { pos: [6, 4, -6], radius: 2.1, count: 300, color: [0.96, 0.37, 0.76] }, // pink
+  { pos: [-7.5, -3.5, -8], radius: 2.6, count: 320, color: [0.48, 0.79, 1.0] }, // sky
+  { pos: [7.5, -3, -4], radius: 2.0, count: 260, color: [0.68, 0.5, 0.98] }, // violet
+  { pos: [0, -4.5, -10], radius: 2.8, count: 300, color: [0.43, 0.37, 0.96] },
 ];
 
 export default function HeroScene() {
@@ -43,7 +43,7 @@ export default function HeroScene() {
     starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
     const starMat = new THREE.PointsMaterial({
       size: 0.028,
-      color: 0xc9c0af,
+      color: 0xb8bce0,
       transparent: true,
       opacity: 0.55,
       sizeAttenuation: true,
@@ -98,9 +98,9 @@ export default function HeroScene() {
       bandPos[i * 3 + 1] = (Math.random() - 0.5) * 0.25 - 0.3;
       bandPos[i * 3 + 2] = -5 + (Math.random() - 0.5) * 1.2;
       const mix = Math.random();
-      bandCol[i * 3] = 0.75 + mix * 0.2;
-      bandCol[i * 3 + 1] = 0.65 + mix * 0.2;
-      bandCol[i * 3 + 2] = 0.45 + mix * 0.15;
+      bandCol[i * 3] = 0.45 + mix * 0.4;
+      bandCol[i * 3 + 1] = 0.4 + mix * 0.3;
+      bandCol[i * 3 + 2] = 0.9 + mix * 0.1;
     }
     const bandGeo = new THREE.BufferGeometry();
     bandGeo.setAttribute("position", new THREE.BufferAttribute(bandPos, 3));

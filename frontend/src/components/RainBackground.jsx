@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-const COLORS = ["rgba(201,168,118,", "rgba(230,201,138,", "rgba(184,178,166,"];
+const COLORS = ["rgba(109,94,245,", "rgba(244,95,194,", "rgba(123,201,255,"];
 
 export default function RainBackground() {
   const canvasRef = useRef(null);

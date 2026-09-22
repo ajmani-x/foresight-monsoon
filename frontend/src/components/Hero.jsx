@@ -4,7 +4,6 @@ import { ArrowDownRight } from "lucide-react";
 import { useCountUp } from "../hooks/useCountUp";
 import HeroScene from "./HeroScene";
 import RainBackground from "./RainBackground";
-import BarometerDial from "./BarometerDial";
 
 const INTRO_DELAY = 1.5;
 
@@ -41,7 +40,7 @@ const STATES = [
   "Odisha", "Jharkhand", "Chhattisgarh", "Punjab", "Haryana", "Assam",
 ];
 
-export default function Hero({ summary, climate }) {
+export default function Hero({ summary }) {
   const total = summary?.total_districts ?? 74;
   const breakCount = summary?.counts?.break_risk ?? 0;
   const onsetCount = summary?.counts?.onset_favorable ?? 0;
@@ -58,35 +57,23 @@ export default function Hero({ summary, climate }) {
       <HeroScene />
       <RainBackground />
       <FloatingBlobs y1={blobY1} y2={blobY2} />
-      <div className="blueprint-grid pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
 
       <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto max-w-7xl">
-        <div className="flex items-start justify-between mb-10">
-          <motion.div
-            initial="hidden"
-            animate="show"
-            custom={0}
-            variants={fadeUp}
-            className="flex items-center gap-3"
-          >
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-monsoon-glow opacity-60" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-monsoon-glow" />
-            </span>
-            <span className="font-mono text-[10.5px] tracking-[0.22em] uppercase text-mist">
-              NCMRWF · Ministry of Earth Sciences <span className="text-fog">/ Model live</span>
-            </span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: INTRO_DELAY + 0.6, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="corner-frame hidden xl:block -mt-6 rounded-2xl border border-border bg-ink/50 backdrop-blur-sm p-5"
-          >
-            <BarometerDial climate={climate} />
-          </motion.div>
-        </div>
+        <motion.div
+          initial="hidden"
+          animate="show"
+          custom={0}
+          variants={fadeUp}
+          className="flex items-center gap-3 mb-10"
+        >
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-monsoon-glow opacity-60" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-monsoon-glow" />
+          </span>
+          <span className="font-mono text-[10.5px] tracking-[0.22em] uppercase text-mist">
+            NCMRWF · Ministry of Earth Sciences <span className="text-fog">/ Model live</span>
+          </span>
+        </motion.div>
 
         <h1 className="font-display font-medium tracking-tighter text-[clamp(2.1rem,5.2vw,4.4rem)] leading-[1.02] text-paper max-w-5xl">
           <motion.span
@@ -212,7 +199,7 @@ function FloatingBlobs({ y1, y2 }) {
         <motion.div
           animate={{ x: [0, -30, 20, 0], y: [0, 20, -20, 0], scale: [1, 1.08, 0.96, 1] }}
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="h-[420px] w-[420px] rounded-full bg-amber/10 blur-[120px]"
+          className="h-[420px] w-[420px] rounded-full bg-pink/15 blur-[120px]"
         />
       </motion.div>
       <motion.div style={{ y: y1 }} className="absolute bottom-0 left-0">

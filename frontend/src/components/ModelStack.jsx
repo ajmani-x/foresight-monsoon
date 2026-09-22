@@ -41,8 +41,8 @@ export default function ModelStack() {
     <section id="stack" className="px-6 lg:px-10 py-28 border-t border-border">
       <div className="mx-auto max-w-7xl grid lg:grid-cols-[360px_1fr] gap-x-16 gap-y-12">
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <div className="font-serif italic text-[17px] text-monsoon-glow mb-4">
-            (Hybrid architecture)
+          <div className="font-mono text-[10.5px] tracking-[0.22em] uppercase text-monsoon-glow mb-4">
+            01 — 05 / Hybrid architecture
           </div>
           <h2 className="font-display text-3xl font-medium text-paper tracking-tight leading-[1.1]">
             From planetary signals to a farmer&apos;s decision
@@ -74,8 +74,8 @@ export default function ModelStack() {
               transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
               className="relative pb-14 last:pb-0"
             >
-              <div className="absolute -left-[52px] top-0 h-9 w-9 rounded-full border border-border bg-ink flex items-center justify-center">
-                <span className="font-serif italic text-[16px] text-fog">{i + 1}</span>
+              <div className="absolute -left-[52px] top-0 h-8 w-8 rounded-full border border-border bg-ink flex items-center justify-center">
+                <span className="font-mono text-[11px] text-fog">{String(i + 1).padStart(2, "0")}</span>
               </div>
 
               <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-mist mb-2">
