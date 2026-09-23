@@ -1,0 +1,106 @@
+/* Visual story: four scroll moments, with the forecast kept available on demand. */
+.cinematic-hero{position:relative;background:none;overflow:hidden;isolation:isolate}
+.cinematic-hero-image{position:absolute;inset:0;background:url('/indian-farm-hero.webp') center 47%/cover no-repeat;z-index:-2;transform-origin:center center}
+.cinematic-hero .hero-scrim{z-index:-1;background:linear-gradient(90deg,#071d18f5 0%,#071d18c9 37%,#071d1840 80%),linear-gradient(0deg,#0b2119 0%,transparent 28%)}
+.cinematic-hero .hero-content{padding-top:clamp(180px,22vh,300px);padding-bottom:160px}
+.cinematic-hero h1{max-width:1050px;font-size:clamp(62px,7.3vw,116px);line-height:.99}
+.cinematic-hero .hero-content>p{max-width:540px;font-size:clamp(18px,1.6vw,21px)}
+.cinematic-hero .hero-actions{margin-top:42px}
+.cinematic-hero .hero-side-note{bottom:34px}
+.cinematic-story{background:#0d201a;color:#f5f1e7}
+.cinematic-story-intro{min-height:55svh;padding:clamp(100px,10vw,160px) clamp(24px,8vw,128px) 80px;display:flex;flex-direction:column;justify-content:center}
+.cinematic-story-intro>span,.cinematic-chapter-copy>span,.cinematic-chapter-count,.cinematic-local-title>span,.cinematic-risk>span,.cinematic-risk>small,.cinematic-advice>div>span,.cinematic-india-title>span,.cinematic-india-watch>span{font:500 11px 'DM Mono',monospace;letter-spacing:.16em}
+.cinematic-story-intro>span{color:#b9d4ad}
+.cinematic-story-intro h2{font:500 clamp(48px,6.2vw,92px)/1.08 'Playfair Display',serif;letter-spacing:-.045em;margin:24px 0 0}
+.cinematic-story-intro h2 em{color:#c8dfa9}
+.cinematic-chapter{height:95svh;min-height:620px;position:relative;overflow:hidden;isolation:isolate}
+.cinematic-chapter-image{position:absolute;inset:-3%;background-image:url('/indian-farm-stories.webp');background-size:300% auto;background-repeat:no-repeat;z-index:-2;will-change:transform}
+.cinematic-chapter.sowing .cinematic-chapter-image{background-position:0% 50%}
+.cinematic-chapter.break .cinematic-chapter-image{background-position:50% 50%}
+.cinematic-chapter.downpour .cinematic-chapter-image{background-position:100% 50%}
+.cinematic-chapter-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#081710d9 0%,#08171068 53%,transparent 100%),linear-gradient(0deg,#081710a8,transparent 40%)}
+.cinematic-chapter-copy{position:absolute;left:clamp(24px,8vw,128px);top:50%;transform:translateY(-50%);max-width:720px}
+.cinematic-chapter-copy>span{color:#e0eac3}
+.cinematic-chapter-copy h3{font:500 clamp(86px,12vw,180px)/.95 'Playfair Display',serif;letter-spacing:-.07em;margin:18px 0 24px}
+.cinematic-chapter-copy p{font:500 clamp(21px,2.6vw,34px)/1.25 'DM Sans',sans-serif;color:#eff1e7;margin:0}
+.cinematic-chapter-count{position:absolute;bottom:32px;right:clamp(24px,6vw,90px);color:#ecf0e5}
+.cinematic-story-next{min-height:210px;display:flex;align-items:center;justify-content:center;gap:25px;background:#dce7c2;color:#18372a;font:600 clamp(22px,3vw,38px) 'Playfair Display',serif}
+.cinematic-story-next:hover{background:#edf1d9}
+.orbit-bridge{height:190svh}
+.orbit-copy p{max-width:820px}
+.cinematic-local{background:#0e281e;color:#f5f1e7}
+.cinematic-local-stage{height:100svh;min-height:680px;position:relative;overflow:hidden}
+.cinematic-local-stage .satellite-view{height:100%;min-height:0;border:0}
+.cinematic-local-stage .satellite-shade{background:linear-gradient(90deg,#071b17d9 0%,#071b1765 57%,transparent),linear-gradient(0deg,#091e18df 0%,transparent 42%,#081b1799 100%)}
+.cinematic-local-stage .satellite-place{display:none}
+.cinematic-local-stage .satellite-topline{left:clamp(24px,6vw,90px);right:clamp(24px,6vw,90px);top:105px}
+.cinematic-local-stage .satellite-target{opacity:.8}
+.cinematic-local-stage .satellite-controls{bottom:70px;right:clamp(24px,6vw,90px)}
+.cinematic-local-title{position:absolute;left:clamp(24px,8vw,128px);top:50%;transform:translateY(-50%);max-width:760px;pointer-events:none}
+.cinematic-local-title>span{color:#d7e7bb}
+.cinematic-local-title h2{font:500 clamp(60px,8vw,122px)/1 'Playfair Display',serif;letter-spacing:-.06em;margin:20px 0 17px;text-shadow:0 8px 28px #08180f99}
+.cinematic-local-title p{font-size:clamp(15px,1.5vw,20px);color:#e2eee0}
+.cinematic-local .imagery-credit{font-size:9px}
+.cinematic-location-bar{display:flex;gap:12px;align-items:stretch;padding:24px clamp(24px,6vw,90px);border-bottom:1px solid #68896e;background:#173628;position:relative;z-index:3}
+.cinematic-location-bar label,.cinematic-search{min-height:58px;background:#234636;border:1px solid #739375;color:#f6f1df;display:flex;align-items:center;gap:12px;padding:0 16px}
+.cinematic-location-bar label{flex:1}
+.cinematic-location-bar label>span{font:500 10px 'DM Mono',monospace;letter-spacing:.12em;white-space:nowrap}
+.cinematic-location-bar select{flex:1;min-width:0;background:transparent;border:0;color:#f6f1df;outline:none;cursor:pointer}
+.cinematic-location-bar select option{background:#234636}
+.cinematic-location-bar>button{display:flex;align-items:center;justify-content:center;gap:9px;min-width:132px;border:0;background:#d7e8b3;color:#193a2a;font-weight:700}
+.cinematic-search{position:relative;flex:.6}
+.cinematic-search input{border:0;outline:0;background:transparent;width:100%;color:#f6f1df}
+.cinematic-search input::placeholder{color:#bad0bb}
+.cinematic-search>div{position:absolute;top:100%;left:-1px;right:-1px;background:#244837;border:1px solid #7c9b80;max-height:280px;overflow:auto;z-index:5}
+.cinematic-search>div button{width:100%;display:flex;justify-content:space-between;gap:12px;padding:12px 14px;text-align:left;border:0;border-bottom:1px solid #ffffff23;background:transparent;color:#f5f0df}
+.cinematic-search>div button:hover{background:#365c45}
+.cinematic-search small,.cinematic-search p{color:#c4d5c5}
+.cinematic-message,.cinematic-error{padding:10px clamp(24px,6vw,90px);margin:0;background:#214836;font-size:13px;color:#d5e9bd}
+.cinematic-error{background:#49312c;color:#ffd4c7}
+.cinematic-local-insight{display:grid;grid-template-columns:.85fr 1.15fr;min-height:390px}
+.cinematic-risk{padding:clamp(40px,6vw,90px);display:flex;flex-direction:column;justify-content:center;background:#143326}
+.cinematic-risk>span,.cinematic-risk>small{color:#b7d1b8}
+.cinematic-risk strong{font:500 clamp(48px,5vw,80px)/1.04 'Playfair Display',serif;letter-spacing:-.05em;margin:25px 0}
+.cinematic-advice{padding:clamp(40px,6vw,90px);background:#ebe4d0;color:#1b3d2b;display:flex;flex-direction:column;justify-content:center}
+.cinematic-advice>div{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.cinematic-advice>div>span{color:#5b7960}
+.cinematic-advice h3{font:500 clamp(32px,3.4vw,52px)/1.1 'Playfair Display',serif;letter-spacing:-.04em;margin:28px 0 17px}
+.cinematic-advice p{font-size:clamp(16px,1.5vw,19px);line-height:1.6;color:#3c5944;max-width:600px;margin:0}
+.cinematic-advice .language-toggle{background:#d3dac7}
+.cinematic-forecast{border-top:1px solid #54765d;border-bottom:1px solid #54765d;padding:0 clamp(24px,6vw,90px)}
+.cinematic-forecast>summary{display:flex;align-items:center;justify-content:space-between;min-height:85px;cursor:pointer;list-style:none;font:600 18px 'DM Sans',sans-serif}
+.cinematic-forecast>summary::-webkit-details-marker{display:none}
+.cinematic-forecast[open]>summary svg{transform:rotate(180deg)}
+.cinematic-forecast-body{padding:0 0 48px}
+.cinematic-forecast-body>p{font-size:14px;color:#bbd0bd}
+.cinematic-probabilities{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:25px 0 35px}
+.cinematic-probabilities>div{display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid #688b6e}
+.cinematic-probabilities span{font-size:12px;color:#bdd1bf}
+.cinematic-probabilities strong{font:500 40px 'Playfair Display',serif}
+.cinematic-chart{max-width:900px}
+.cinematic-zoom-out{min-height:160px;display:flex;align-items:center;justify-content:center;gap:22px;font:500 clamp(28px,3vw,42px) 'Playfair Display',serif;color:#e6edcf}
+.cinematic-zoom-out:hover{background:#214333}
+.cinematic-india{position:relative;min-height:100svh;background:radial-gradient(circle at 55% 45%,#1e4935,#0b251b 75%);overflow:hidden;color:#f5f2e7}
+.cinematic-india-map{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden}
+.cinematic-india-map>div{width:min(75vw,1100px);height:100%;display:grid;place-items:center;transform-origin:center center}
+.cinematic-india-map .india-map{width:100%;height:min(88vh,900px);min-height:0;background:transparent;border:0}
+.cinematic-india-map .map-legend{bottom:30px;left:50%;right:auto;transform:translateX(-50%);white-space:nowrap;flex-wrap:nowrap;background:#0c291ee8}
+.cinematic-india-title{position:relative;z-index:1;pointer-events:none;padding:clamp(100px,13vh,170px) clamp(24px,6vw,90px) 0;max-width:620px;text-shadow:0 5px 25px #0b2118}
+.cinematic-india-title>span{color:#d3e7b4}
+.cinematic-india-title h2{font:500 clamp(51px,5.5vw,86px)/1.03 'Playfair Display',serif;letter-spacing:-.05em;margin:22px 0}
+.cinematic-india-title h2 em{color:#d4e6b4}
+.cinematic-india-title p{font:500 12px 'DM Mono',monospace;letter-spacing:.1em}
+.cinematic-india-watch{position:relative;z-index:2;margin:20px clamp(24px,6vw,90px) 120px auto;width:min(310px,27vw);padding:24px;background:#0d2a20e8;border:1px solid #719274}
+.cinematic-india-watch>span{color:#d3e7b4}
+.cinematic-india-watch>div{margin-top:13px}
+.cinematic-india-watch button{width:100%;border:0;border-bottom:1px solid #64816b;background:none;color:#f5f2e7;padding:12px 0;text-align:left;display:flex;align-items:center;gap:8px;font-size:14px}
+.cinematic-india-watch button:hover{color:#d6e9b3}
+.cinematic-india-watch button small{font-size:10px;color:#afc4ad;margin-left:auto}
+.cinematic-back{position:absolute;z-index:2;left:clamp(24px,6vw,90px);bottom:35px;display:flex;align-items:center;gap:10px;font-size:13px}
+.signals-section{padding:100px clamp(24px,8vw,128px);min-height:0}
+.signals-copy h2{font-size:clamp(43px,5vw,70px)}
+.signals-copy p{max-width:400px}
+.site-footer{padding-top:45px;padding-bottom:45px}
+@media(max-width:1050px){.cinematic-location-bar{flex-wrap:wrap}.cinematic-location-bar label{min-width:calc(65% - 12px)}.cinematic-search{min-width:100%}.cinematic-india-map>div{width:95vw}.cinematic-india-watch{width:280px}}
+@media(max-width:720px){.cinematic-hero{min-height:100svh}.cinematic-hero-image{background-position:68% center}.cinematic-hero .hero-scrim{background:linear-gradient(0deg,#09221ce9 0%,#09221cc7 48%,#09221c50 100%)}.cinematic-hero .hero-content{padding:170px 24px 155px}.cinematic-hero h1{font-size:clamp(51px,11vw,69px)}.cinematic-hero .hero-content>p{font-size:17px}.cinematic-hero .hero-side-note{bottom:72px}.cinematic-story-intro{min-height:42svh;padding:95px 22px 70px}.cinematic-story-intro h2{font-size:clamp(46px,11vw,60px)}.cinematic-chapter{height:78svh;min-height:550px}.cinematic-chapter-image{background-size:300% auto}.cinematic-chapter-shade{background:linear-gradient(0deg,#081710d9,#08171059 68%,#0817102e)}.cinematic-chapter-copy{left:23px;right:23px;top:auto;bottom:105px;transform:none}.cinematic-chapter-copy h3{font-size:clamp(85px,22vw,120px)}.cinematic-chapter-copy p{font-size:23px}.cinematic-chapter-count{right:24px;bottom:26px}.cinematic-story-next{min-height:130px;font-size:26px}.orbit-bridge{height:150svh}.cinematic-local-stage{height:87svh;min-height:570px}.cinematic-local-stage .satellite-topline{top:80px}.cinematic-local-title{left:24px;right:24px;top:45%}.cinematic-local-title h2{font-size:clamp(58px,14vw,76px)}.cinematic-local-stage .satellite-controls{bottom:40px;right:20px}.cinematic-location-bar{padding:20px;gap:10px}.cinematic-location-bar label{min-width:100%}.cinematic-location-bar>button{min-height:52px;flex:1}.cinematic-search{min-width:100%;flex:1}.cinematic-local-insight{grid-template-columns:1fr}.cinematic-risk,.cinematic-advice{padding:42px 24px}.cinematic-risk strong{font-size:59px}.cinematic-advice h3{font-size:37px}.cinematic-probabilities{grid-template-columns:1fr 1fr}.cinematic-probabilities strong{font-size:33px}.cinematic-india{min-height:900px}.cinematic-india-title{padding:90px 22px 0;max-width:100%}.cinematic-india-title h2{font-size:53px}.cinematic-india-map{top:170px;bottom:260px}.cinematic-india-map>div{width:100vw}.cinematic-india-map .india-map{height:100%;min-height:0}.cinematic-india-map .map-legend{display:none}.cinematic-india-watch{position:absolute;left:20px;right:20px;bottom:68px;margin:0;width:auto;padding:18px}.cinematic-india-watch>div{display:flex;gap:18px;overflow:auto}.cinematic-india-watch button{min-width:155px;display:block;white-space:nowrap}.cinematic-india-watch button small{display:block;margin-top:4px}.cinematic-india-watch button svg{display:none}.cinematic-back{left:22px;bottom:24px}.signals-section{padding:75px 22px}}
+@media(prefers-reduced-motion:reduce){.cinematic-hero-image,.cinematic-chapter-image,.cinematic-india-map>div{transform:none!important}.cinematic-chapter-copy{opacity:1!important;transform:none!important}.orbit-bridge{height:100svh}}
