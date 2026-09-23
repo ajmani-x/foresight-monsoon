@@ -49,8 +49,17 @@ def current_climate_state() -> dict:
     return dict(_current_indices())
 
 
+@lru_cache(maxsize=512)
 def predict_district(district_id: str, lat: float, lon: float, coastal: int, dry_belt: int, month: int | None = None):
-    """Returns (onset_probability, break_probability, heavy_rain_probability)."""
+    """Returns (onset_probability, break_probability, heavy_rain_probability).
+
+    Cached: the current climate snapshot only changes once a day (see
+    _current_indices), so repeated calls for the same district+month within
+    a process lifetime are pure recomputation otherwise — and with a 4-model
+    ensemble per target, that recomputation is expensive enough (~3s across
+    all 74 districts) to matter for endpoints that loop over every district
+    per request (districts/map, advisory, districts/summary).
+    """
     bundle = _load_bundle()
     idx = _current_indices()
     m = month or idx["as_of_month"]
