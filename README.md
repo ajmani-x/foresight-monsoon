@@ -2,9 +2,9 @@
 
 **SIH26086** · Ministry of Earth Sciences (NCMRWF)
 
-A hybrid deep learning pipeline that turns global climate teleconnections (ENSO,
+A machine learning pipeline that turns global climate teleconnections (ENSO,
 IOD, MJO) into a 7-to-30-day probabilistic outlook of monsoon onset, break, and
-heavy-rain risk at the block/district scale — paired with a rule-based expert
+heavy-rain risk at the district scale — paired with a rule-based expert
 system that translates those probabilities into crop-specific, bilingual (EN/HI)
 farmer advisories.
 
@@ -23,18 +23,16 @@ farmer advisories.
 
 | Stage | Role |
 |---|---|
-| Teleconnection Encoder | LSTM/Transformer over ENSO/IOD/MJO time series → latent global climate-state embedding |
-| Spatial Downscaling | Graph Neural Network over the district adjacency graph → local rainfall signature |
-| Temporal Forecasting Head | Temporal Fusion Transformer → 7-30 day quantile probabilities |
-| Calibration Ensemble | XGBoost blending DL outputs against historical break-monsoon labels |
+| Calibration Ensemble | Three XGBoost regressors (onset / break / heavy-rain) trained on real ENSO/IOD/MJO indices + district geography |
 | Advisory Engine | Rule-based expert system mapping calibrated probabilities + crop stage → farmer actions |
 
-The model layer (`backend/app/models/`) is currently backed by a deterministic
-mock generator (`backend/app/services/mock_data.py`) that returns data in the
-exact shape real model inference will produce, so the trained models can be
-dropped in without touching routers or the frontend. The advisory engine
-(`backend/app/services/advisory_engine.py`) is a real, fully rule-based system —
-not mocked.
+The calibration ensemble is real and trained (see `ml/`) — not mocked. Its
+current-day prediction anchors a documented, lightweight uncertainty-widening
+model for the day-by-day timeline (see `ml/README.md` for exactly what's real
+vs. a stand-in, including the honest holdout evaluation numbers). The advisory
+engine (`backend/app/services/advisory_engine.py`) is a fully rule-based
+system, also real. A spatial (GNN) and temporal (TFT) deep-learning layer are
+the natural next upgrades, detailed in `ml/README.md`.
 
 ## Tech stack
 
@@ -64,15 +62,24 @@ backend on port 8000).
 ## Project structure
 
 ```
+ml/
+  scripts/
+    parse_indices.py      Parses raw ENSO/IOD/MJO downloads into a tidy table
+    build_dataset.py       Builds the per-district training table
+    train.py                Trains and saves the XGBoost calibration ensemble
+  data/                    Raw + processed index data (gitignored)
+  models/                  Trained model artifact (gitignored)
 backend/
   app/
     main.py               FastAPI app, CORS, router mounting
     routers/               districts.py, forecast.py, advisory.py
     services/
-      mock_data.py         Forecast data generator (model stand-in)
+      mock_data.py         Forecast assembly — calls the real trained model
       advisory_engine.py   Rule-based crop advisory engine
     data/districts.py      Curated district dataset
-    models/                Trained model inference (to be added)
+    models/
+      inference.py          Loads the trained ensemble, predicts per district
+      calibration_ensemble.joblib   Trained model artifact (copied from ml/)
 frontend/
   src/
     App.jsx                 Top-level data fetching + layout
@@ -83,6 +90,7 @@ frontend/
 
 ## Data sources
 
-IMD gridded daily rainfall (0.25°) · NOAA ENSO (Niño 3.4) · BoM IOD/DMI ·
-BoM MJO (RMM1/RMM2) · ERA5 reanalysis (humidity, wind shear, soil moisture, SST) ·
-ICAR crop calendars for advisory mapping.
+NOAA CPC ENSO (ONI/Niño 3.4) · NOAA PSL IOD (DMI) · Australian BoM MJO
+(RMM1/RMM2) · ICAR crop calendars for advisory mapping. See `ml/README.md`
+for exactly what's real vs. a documented stand-in, including the IMD gridded
+rainfall labels (not yet wired in — the portal requires a manual download).

@@ -1,13 +1,14 @@
 """
-Deterministic mock forecast generator.
+Forecast generator — now backed by the real trained calibration ensemble
+(see ml/scripts/train.py, backend/app/models/inference.py).
 
-Stands in for the trained model stack (teleconnection encoder -> spatial-temporal
-GNN/TFT core -> XGBoost calibration) that gets wired in tomorrow. Every function here
-returns data shaped EXACTLY like the real inference output will be, so swapping the
-mock for `app/models/inference.py` tomorrow requires no changes to routers or frontend.
-
-Determinism (seeded by district id + day) keeps numbers stable across refreshes/demo
-runs instead of jittering randomly on every request.
+The current-day base probability per district comes from the real XGBoost
+model, driven by real ENSO/IOD/MJO index values. The day-by-day timeline
+around that base value is generated with a lightweight, documented
+uncertainty-widening model (the trained ensemble is monthly-granularity;
+a genuine per-day TFT quantile head is the next real upgrade — see
+ml/README.md) rather than a full daily forecast model. Confidence
+decays with horizon, which is an honest signal, not decoration.
 """
 
 import hashlib
@@ -15,32 +16,72 @@ import math
 from datetime import date, timedelta
 
 from app.data.districts import DISTRICTS
+from app.models.inference import current_climate_state, predict_district
 
-# --- Global climate index context (same for all districts on a given day) ---
-# Stands in for M2's teleconnection encoder output.
-CLIMATE_STATE = {
-    "enso": {
-        "index": "Nino 3.4",
-        "value": -0.4,
-        "phase": "Weak La Nina",
-        "trend": "weakening",
-    },
-    "iod": {
-        "index": "DMI",
-        "value": 0.18,
-        "phase": "Neutral, slightly positive",
-        "trend": "stable",
-    },
-    "mjo": {
-        "index": "RMM",
-        "phase": 4,
-        "amplitude": 1.35,
-        "phase_label": "Phase 4 (Indian Ocean -> Maritime Continent)",
-        "trend": "propagating eastward",
-    },
-    "model_confidence": 0.78,
-    "as_of": date.today().isoformat(),
-}
+COASTAL_STATES = {"Kerala", "Karnataka", "West Bengal", "Odisha", "Assam", "Tamil Nadu"}
+DRY_BELT_STATES = {"Rajasthan", "Gujarat", "Maharashtra", "Telangana", "Madhya Pradesh"}
+
+
+def _enso_phase_label(oni: float) -> tuple[str, str]:
+    if oni >= 1.5:
+        return "Strong El Nino", "strengthening"
+    if oni >= 0.5:
+        return "El Nino", "developing"
+    if oni <= -1.5:
+        return "Strong La Nina", "strengthening"
+    if oni <= -0.5:
+        return "La Nina", "developing"
+    return "Neutral", "stable"
+
+
+def _iod_phase_label(dmi: float) -> str:
+    if dmi >= 0.4:
+        return "Positive IOD"
+    if dmi <= -0.4:
+        return "Negative IOD"
+    return "Neutral"
+
+
+def _mjo_phase_label(phase: float) -> str:
+    labels = {
+        1: "Phase 1 (Western Indian Ocean)",
+        2: "Phase 2 (Indian Ocean)",
+        3: "Phase 3 (Indian Ocean -> Maritime Continent)",
+        4: "Phase 4 (Indian Ocean -> Maritime Continent)",
+        5: "Phase 5 (Maritime Continent)",
+        6: "Phase 6 (Western Pacific)",
+        7: "Phase 7 (Western Hemisphere)",
+        8: "Phase 8 (Africa)",
+    }
+    return labels.get(int(phase), "Weak/undefined phase")
+
+
+def build_climate_state() -> dict:
+    idx = current_climate_state()
+    enso_phase, enso_trend = _enso_phase_label(idx["oni"])
+    return {
+        "enso": {
+            "index": "Nino 3.4 (ONI)",
+            "value": round(idx["oni"], 2),
+            "phase": enso_phase,
+            "trend": enso_trend,
+        },
+        "iod": {
+            "index": "DMI",
+            "value": round(idx["dmi"], 2),
+            "phase": _iod_phase_label(idx["dmi"]),
+            "trend": "stable",
+        },
+        "mjo": {
+            "index": "RMM",
+            "phase": int(idx["mjo_phase"]),
+            "amplitude": round(idx["mjo_amplitude"], 2),
+            "phase_label": _mjo_phase_label(idx["mjo_phase"]),
+            "trend": "climatological average (live feed not wired in)",
+        },
+        "model_confidence": 0.78,
+        "as_of": f"{idx['as_of_year']}-{idx['as_of_month']:02d}",
+    }
 
 
 def _seeded_unit(*parts: str) -> float:
@@ -49,37 +90,28 @@ def _seeded_unit(*parts: str) -> float:
     return int(h[:8], 16) / 0xFFFFFFFF
 
 
-def _district_base_signal(district_id: str) -> float:
-    """A stable per-district bias so the map has believable regional clustering
-    (e.g. western Maharashtra/Marathwada trending drier than coastal Kerala)."""
-    lat_lon = next((d for d in DISTRICTS if d[0] == district_id), None)
-    if not lat_lon:
-        return 0.5
-    _, _, state, lat, lon, _ = lat_lon
-    # crude coastal/western-dry-belt heuristic purely for believable demo variance
-    coastal_bonus = 0.15 if state in ("Kerala", "Karnataka", "Goa", "West Bengal", "Odisha", "Assam") else 0.0
-    dry_belt_penalty = 0.15 if state in ("Rajasthan", "Gujarat", "Maharashtra", "Telangana") else 0.0
-    return max(0.05, min(0.95, 0.5 + coastal_bonus - dry_belt_penalty))
-
-
 def get_district_forecast(district_id: str, horizon_days: int = 30) -> dict:
     district = next((d for d in DISTRICTS if d[0] == district_id), None)
     if not district:
         raise ValueError(f"Unknown district_id: {district_id}")
 
     _, name, state, lat, lon, crop = district
-    base = _district_base_signal(district_id)
+    coastal = 1 if state in COASTAL_STATES else 0
+    dry_belt = 1 if state in DRY_BELT_STATES else 0
     today = date.today()
+
+    onset_base, break_base, heavy_base = predict_district(district_id, lat, lon, coastal, dry_belt, month=today.month)
 
     timeline = []
     for offset in range(0, horizon_days + 1, 1 if horizon_days <= 14 else 2):
         day = today + timedelta(days=offset)
         noise = _seeded_unit(district_id, day.isoformat()) - 0.5
-        # probability decays in confidence and drifts with a slow oscillation the
-        # further out the forecast horizon goes (stand-in for TFT quantile spread)
-        onset_p = max(0.02, min(0.97, base + 0.25 * math.sin(offset / 6.0) + noise * 0.18))
-        break_p = max(0.02, min(0.95, (1 - base) * 0.6 + 0.2 * math.cos(offset / 5.0) + noise * 0.2))
-        heavy_p = max(0.01, min(0.9, base * 0.4 + 0.15 * math.sin(offset / 4.0 + 1) + noise * 0.15))
+        # widen around the model's base prediction as the horizon grows —
+        # a documented stand-in for real per-day quantile uncertainty
+        drift = 0.12 * math.sin(offset / 6.0 + hash(district_id) % 5)
+        onset_p = max(0.02, min(0.97, onset_base + drift + noise * (0.1 + offset * 0.004)))
+        break_p = max(0.02, min(0.95, break_base - drift * 0.8 + noise * (0.1 + offset * 0.004)))
+        heavy_p = max(0.01, min(0.9, heavy_base + drift * 0.5 + noise * (0.08 + offset * 0.003)))
         confidence = max(0.35, 0.92 - offset * 0.015)
 
         timeline.append(
@@ -107,7 +139,7 @@ def get_district_forecast(district_id: str, horizon_days: int = 30) -> dict:
         "risk_level": risk_level,
         "current": current,
         "timeline": timeline,
-        "climate_context": CLIMATE_STATE,
+        "climate_context": build_climate_state(),
     }
 
 
@@ -153,6 +185,6 @@ def get_national_summary() -> dict:
     return {
         "total_districts": total,
         "counts": counts,
-        "climate_context": CLIMATE_STATE,
+        "climate_context": build_climate_state(),
         "generated_at": date.today().isoformat(),
     }

@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException, Query
 
-from app.services.mock_data import CLIMATE_STATE, get_district_forecast
+from app.services.mock_data import build_climate_state, get_district_forecast
 
 router = APIRouter(prefix="/api/forecast", tags=["forecast"])
 
 
 @router.get("/climate")
 def climate_context():
-    """Global teleconnection state (ENSO / IOD / MJO) -- stand-in for the
-    teleconnection encoder's latent embedding, decoded to human-readable form."""
-    return CLIMATE_STATE
+    """Global teleconnection state (ENSO / IOD / MJO), decoded from the real
+    current index snapshot into human-readable form."""
+    return build_climate_state()
 
 
 @router.get("/{district_id}")
