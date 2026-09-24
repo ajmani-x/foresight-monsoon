@@ -3,6 +3,7 @@ backend/venv/
 backend/__pycache__/
 backend/app/__pycache__/
 backend/app/**/__pycache__/
+backend/app/data/farmers_store.json
 *.pyc
 
 # ML pipeline
