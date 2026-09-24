@@ -23,13 +23,16 @@ farmer advisories.
 
 | Stage | Role |
 |---|---|
-| Calibration Ensemble | Three XGBoost regressors (onset / break / heavy-rain) trained on real ENSO/IOD/MJO indices + district geography |
+| Calibration Ensemble | 4-model ensemble per target (XGBoost, Random Forest, Gradient Boosting, Ridge) — onset / break / heavy-rain — trained on real ENSO/IOD/MJO indices + real rainfall-derived labels (NASA POWER, 1981-2023) |
+| Vegetation Response Model | Separately trained/validated: real NDVI (NASA MODIS) from real rainfall, R²=0.76, 10 districts |
 | Advisory Engine | Rule-based expert system mapping calibrated probabilities + crop stage → farmer actions |
 
-The calibration ensemble is real and trained (see `ml/`) — not mocked. Its
-current-day prediction anchors a documented, lightweight uncertainty-widening
-model for the day-by-day timeline (see `ml/README.md` for exactly what's real
-vs. a stand-in, including the honest holdout evaluation numbers). The advisory
+The calibration ensemble is real and trained on real data end to end (see
+`ml/README.md`) — real climate indices, real rainfall-derived labels, real
+time-based holdout evaluation (R²≈0.06-0.41 depending on target — honest
+numbers, not inflated; see `ml/README.md` for why heavy-rain scores lower).
+Its current-day prediction anchors a documented, lightweight
+uncertainty-widening model for the day-by-day timeline. The advisory
 engine (`backend/app/services/advisory_engine.py`) is a fully rule-based
 system, also real. A spatial (GNN) and temporal (TFT) deep-learning layer are
 the natural next upgrades, detailed in `ml/README.md`.

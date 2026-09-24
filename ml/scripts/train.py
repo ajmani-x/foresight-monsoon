@@ -6,8 +6,11 @@ bagging, another boosting variant, and a linear model gives genuinely
 diverse error patterns (not just 4 near-identical trees), which is what
 actually reduces variance in an ensemble rather than just adding compute.
 
-Trains on years <= 2015, holds out 2016-2025 for evaluation (a genuine
-time-based split, not random shuffling).
+Trains on real_training_table.csv (see build_real_dataset.py) — labels
+derived from REAL observed rainfall (NASA POWER), not the earlier
+synthetic ENSO/IOD-formula version (training_table.csv, kept for
+reference/comparison). Trains on years <= 2015, holds out 2016-2023 for
+evaluation (a genuine time-based split, not random shuffling).
 """
 
 from pathlib import Path
@@ -49,7 +52,7 @@ def make_ensemble():
 
 
 def main():
-    df = pd.read_csv(DATA / "training_table.csv")
+    df = pd.read_csv(DATA / "real_training_table.csv")
 
     train = df[df.year <= 2015]
     test = df[df.year > 2015]
