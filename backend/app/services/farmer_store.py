@@ -25,7 +25,10 @@ _lock = threading.Lock()
 class FarmerProfile(BaseModel):
     phone: str = Field(..., description="WhatsApp number, unique identifier")
     name: str
-    district_id: str
+    district_name: str = Field(..., description="Whatever place name the farmer typed/said")
+    lat: float = Field(..., description="Geocoded at profile-creation time — see geocoding.py")
+    lon: float
+    state: str = Field(..., description="Resolved from geocoding, used for coastal/dry_belt")
     crops: list[str] = Field(default_factory=list)
     land_size_acres: Optional[float] = None
     irrigation_access: bool = False

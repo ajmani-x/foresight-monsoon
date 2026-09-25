@@ -90,25 +90,24 @@ def _seeded_unit(*parts: str) -> float:
     return int(h[:8], 16) / 0xFFFFFFFF
 
 
-def get_district_forecast(district_id: str, horizon_days: int = 30) -> dict:
-    district = next((d for d in DISTRICTS if d[0] == district_id), None)
-    if not district:
-        raise ValueError(f"Unknown district_id: {district_id}")
-
-    _, name, state, lat, lon, crop = district
+def _build_forecast(location_id: str, name: str, state: str, lat: float, lon: float, crop: str, horizon_days: int) -> dict:
+    """Shared forecast core, independent of whether the location came from
+    the curated districts.py registry or was geocoded live from whatever
+    place name a farmer typed (see geocoding.py) — either way, from here
+    it's just real coordinates + real crop going into the real model."""
     coastal = 1 if state in COASTAL_STATES else 0
     dry_belt = 1 if state in DRY_BELT_STATES else 0
     today = date.today()
 
-    onset_base, break_base, heavy_base = predict_district(district_id, lat, lon, coastal, dry_belt, month=today.month)
+    onset_base, break_base, heavy_base = predict_district(location_id, lat, lon, coastal, dry_belt, month=today.month)
 
     timeline = []
     for offset in range(0, horizon_days + 1, 1 if horizon_days <= 14 else 2):
         day = today + timedelta(days=offset)
-        noise = _seeded_unit(district_id, day.isoformat()) - 0.5
+        noise = _seeded_unit(location_id, day.isoformat()) - 0.5
         # widen around the model's base prediction as the horizon grows —
         # a documented stand-in for real per-day quantile uncertainty
-        drift = 0.12 * math.sin(offset / 6.0 + hash(district_id) % 5)
+        drift = 0.12 * math.sin(offset / 6.0 + hash(location_id) % 5)
         onset_p = max(0.02, min(0.97, onset_base + drift + noise * (0.1 + offset * 0.004)))
         break_p = max(0.02, min(0.95, break_base - drift * 0.8 + noise * (0.1 + offset * 0.004)))
         heavy_p = max(0.01, min(0.9, heavy_base + drift * 0.5 + noise * (0.08 + offset * 0.003)))
@@ -129,7 +128,7 @@ def get_district_forecast(district_id: str, horizon_days: int = 30) -> dict:
     risk_level = _classify_risk(current)
 
     return {
-        "district_id": district_id,
+        "district_id": location_id,
         "district_name": name,
         "state": state,
         "lat": lat,
@@ -141,6 +140,21 @@ def get_district_forecast(district_id: str, horizon_days: int = 30) -> dict:
         "timeline": timeline,
         "climate_context": build_climate_state(),
     }
+
+
+def get_district_forecast(district_id: str, horizon_days: int = 30) -> dict:
+    district = next((d for d in DISTRICTS if d[0] == district_id), None)
+    if not district:
+        raise ValueError(f"Unknown district_id: {district_id}")
+    _, name, state, lat, lon, crop = district
+    return _build_forecast(district_id, name, state, lat, lon, crop, horizon_days)
+
+
+def get_forecast_for_coordinates(place_name: str, state: str, lat: float, lon: float, crop: str, horizon_days: int = 30) -> dict:
+    """For farmers whose district isn't in the curated registry — real
+    coordinates from geocoding.py, no district_id lookup needed at all."""
+    location_id = f"geo:{round(lat, 3)},{round(lon, 3)}"
+    return _build_forecast(location_id, place_name, state, lat, lon, crop, horizon_days)
 
 
 def _classify_risk(snapshot: dict) -> str:
