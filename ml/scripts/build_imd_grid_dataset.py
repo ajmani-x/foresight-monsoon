@@ -102,7 +102,7 @@ def build():
             )
 
     df = pd.DataFrame(rows)
-    out = DATA / "imd_grid_training_table.csv"
+    out = DATA / "FINAL_TRAINING_DATASET.csv"
     df.to_csv(out, index=False)
     print(f"Wrote {len(df)} rows ({df.district_id.nunique()} districts, years: {sorted(df.year.unique())}) to {out}")
     print("\nLabel distribution:")

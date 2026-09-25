@@ -8,7 +8,8 @@ backend/app/data/farmers_store.json
 
 # ML pipeline
 ml/venv/
-ml/data/
+ml/data/*
+!ml/data/FINAL_TRAINING_DATASET.csv
 ml/models/
 ml/__pycache__/
 ml/**/__pycache__/

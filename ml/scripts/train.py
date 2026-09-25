@@ -52,10 +52,10 @@ def make_ensemble():
 
 
 def main():
-    df = pd.read_csv(DATA / "imd_grid_training_table.csv")
+    df = pd.read_csv(DATA / "FINAL_TRAINING_DATASET.csv")
 
-    train = df[df.year <= 2011]
-    test = df[df.year > 2011]
+    train = df[df.year <= 2014]
+    test = df[df.year > 2014]
     print(f"Train: {len(train)} rows ({train.year.min()}-{train.year.max()})")
     print(f"Test:  {len(test)} rows ({test.year.min()}-{test.year.max()})")
 

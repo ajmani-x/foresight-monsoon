@@ -23,14 +23,14 @@ farmer advisories.
 
 | Stage | Role |
 |---|---|
-| Calibration Ensemble | 4-model ensemble per target (XGBoost, Random Forest, Gradient Boosting, Ridge) — onset / break / heavy-rain — trained on real ENSO/IOD/MJO indices + real rainfall-derived labels from India's own official IMD gridded rainfall dataset (10 real years, 1992-2022) |
+| Calibration Ensemble | 4-model ensemble per target (XGBoost, Random Forest, Gradient Boosting, Ridge) — onset / break / heavy-rain — trained on `ml/data/FINAL_TRAINING_DATASET.csv`: real ENSO/IOD/MJO indices + real rainfall-derived labels from India's own official IMD gridded rainfall dataset (25 real years, 1990-2023) |
 | Vegetation Response Model | Separately trained/validated: real NDVI (NASA MODIS) from real rainfall, R²=0.76, 10 districts |
 | Advisory Engine | Rule-based expert system mapping calibrated probabilities + crop stage → farmer actions |
 
 The calibration ensemble is real and trained on real data end to end (see
 `ml/README.md`) — real climate indices, real rainfall-derived labels from
 India's own official IMD gridded rainfall data, real time-based holdout
-evaluation (R²≈0.02-0.52 depending on target — honest numbers, not
+evaluation (R²≈0.09-0.41 depending on target — honest numbers, not
 inflated; see `ml/README.md` for why heavy-rain scores lower).
 Its current-day prediction anchors a documented, lightweight
 uncertainty-widening model for the day-by-day timeline. The advisory
