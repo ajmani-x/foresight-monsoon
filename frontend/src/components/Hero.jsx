@@ -41,7 +41,7 @@ const STATES = [
 ];
 
 export default function Hero({ summary }) {
-  const total = summary?.total_districts ?? 74;
+  const total = summary?.total_districts ?? 423;
   const breakCount = summary?.counts?.break_risk ?? 0;
   const onsetCount = summary?.counts?.onset_favorable ?? 0;
 
