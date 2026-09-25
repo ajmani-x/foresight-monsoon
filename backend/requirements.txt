@@ -9,3 +9,4 @@ anthropic==0.39.0
 groq==0.15.0
 requests==2.32.5
 python-multipart==0.0.20
+psycopg2-binary==2.9.10
