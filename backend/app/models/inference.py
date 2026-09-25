@@ -4,13 +4,13 @@ regressor per target, trained in ml/scripts/train.py on real ENSO/IOD/MJO
 indices + district geography — see ml/README.md) and predicts onset /
 break / heavy-rain probabilities per district.
 
-Current climate index snapshot is loaded from climate_indices_monthly.csv
-(the most recent row) rather than fetched live, since NOAA/BoM endpoints
-aren't wired into this service. MJO real-time feed was not reliably
-scriptable at training time (BoM blocks automated access; the historical
-mirror used for training has a reporting lag), so a climatological
-average amplitude/neutral phase is used for the current snapshot until a
-live MJO feed is wired in.
+Current climate index snapshot is fetched LIVE from NOAA CPC / NOAA PSL /
+BoM (see live_climate.py) whenever it's stale (>6h old), cached in-process
+between fetches since these indices don't change faster than daily.
+climate_indices_monthly.csv (the static training-time snapshot) is only a
+fallback for the rare case a live fetch fails and there's no cached value
+yet — so a slow/unreachable external source degrades gracefully instead of
+breaking predictions.
 """
 
 from functools import lru_cache
@@ -19,6 +19,8 @@ from pathlib import Path
 import joblib
 import numpy as np
 import pandas as pd
+
+from app.models.live_climate import get_cached_or_live_indices
 
 MODELS_DIR = Path(__file__).resolve().parent
 BUNDLE_PATH = MODELS_DIR / "calibration_ensemble.joblib"
@@ -31,7 +33,9 @@ def _load_bundle():
 
 
 @lru_cache(maxsize=1)
-def _current_indices():
+def _static_fallback_indices():
+    """Last-resort snapshot if a live fetch fails before any live value has
+    ever been cached. Not used once a live fetch has succeeded at least once."""
     df = pd.read_csv(INDICES_PATH)
     latest = df.dropna(subset=["oni", "dmi"]).iloc[-1]
     amplitude = df["mjo_amplitude"].replace(0, np.nan).dropna()
@@ -42,7 +46,12 @@ def _current_indices():
         "mjo_phase": 0.0,
         "as_of_year": int(latest["year"]),
         "as_of_month": int(latest["month"]),
+        "live": False,
     }
+
+
+def _current_indices():
+    return get_cached_or_live_indices(fallback=_static_fallback_indices())
 
 
 def current_climate_state() -> dict:

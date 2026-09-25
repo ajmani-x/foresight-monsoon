@@ -6,3 +6,4 @@ joblib==1.4.2
 pandas==2.2.3
 scikit-learn==1.9.1
 anthropic==0.39.0
+requests==2.32.5
