@@ -22,6 +22,14 @@ standard, documented precipitation thresholds:
 
 These thresholds are documented choices, not fitted to produce a target
 score -- see ml/README.md for the full disclosure.
+
+Also adds `imd_climatological_normal_mm`: each district's own long-run
+(1901-2015) normal rainfall for that month, from IMD's own subdivision
+rainfall record (build_imd_dataset.py's DISTRICT_TO_SUBDIVISION mapping) --
+real, authentic, India-specific government data used as an input FEATURE
+here (not as the label, which is where it hurt accuracy -- see
+ml/README.md for that finding). Lets the model see "how does the current
+forecast compare to what's normal for this specific place."
 """
 
 import json
@@ -33,8 +41,30 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "backend"))
 from app.data.districts import DISTRICTS  # noqa: E402
+from build_imd_dataset import DISTRICT_TO_SUBDIVISION, MONSOON_MONTHS as IMD_MONTH_COLS  # noqa: E402
 
 DATA = Path(__file__).resolve().parent.parent / "data"
+
+
+def load_imd_climatology():
+    """district_id -> {month: long-run mean rainfall mm} from real IMD subdivision data."""
+    imd = pd.read_csv(DATA / "imd_subdivision_rainfall_1901_2015.csv")
+    imd["SUBDIVISION"] = imd["SUBDIVISION"].str.strip()
+
+    subdiv_normals = {}
+    for subdiv, g in imd.groupby("SUBDIVISION"):
+        subdiv_normals[subdiv] = {}
+        for month_num, col in IMD_MONTH_COLS.items():
+            vals = g[col].dropna()
+            vals = vals[vals >= 0]
+            if len(vals) > 10:
+                subdiv_normals[subdiv][month_num] = float(vals.mean())
+
+    out = {}
+    for district_id, subdiv in DISTRICT_TO_SUBDIVISION.items():
+        if subdiv in subdiv_normals:
+            out[district_id] = subdiv_normals[subdiv]
+    return out
 
 COASTAL_STATES = {"Kerala", "Karnataka", "West Bengal", "Odisha", "Assam", "Tamil Nadu"}
 DRY_BELT_STATES = {"Rajasthan", "Gujarat", "Maharashtra", "Telangana", "Madhya Pradesh"}

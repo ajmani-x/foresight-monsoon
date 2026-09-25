@@ -12,6 +12,8 @@ ml/data/
 ml/models/
 ml/__pycache__/
 ml/**/__pycache__/
+ml/scripts/imd_grid_cache/
+ml/scripts/imd_district_rainfall.csv
 
 # Frontend
 frontend/node_modules/
