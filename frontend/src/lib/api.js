@@ -1,6 +1,13 @@
 import axios from "axios";
 
-const client = axios.create({ baseURL: "/api" });
+// In dev, Vite proxies /api -> localhost:8000 (see vite.config.js).
+// In production there's no dev proxy, so VITE_API_BASE_URL must point at
+// the deployed backend's URL (set this as an env var on Render).
+const baseURL = import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  : "/api";
+
+const client = axios.create({ baseURL });
 
 export const getNationalSummary = () => client.get("/districts/summary").then((r) => r.data);
 export const getDistrictsMap = () => client.get("/districts/map").then((r) => r.data);
