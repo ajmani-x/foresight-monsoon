@@ -35,7 +35,7 @@ export default function RiskMap({ districts, selectedId, onSelect }) {
     <section id="map" className="px-6 lg:px-10 py-24">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
-          eyebrow="Spatial-temporal core · GNN + TFT"
+          eyebrow="Calibration ensemble · live climate feed"
           title="National district risk map"
           description="Live probability of break, heavy-rain, and onset conditions per district. Click any point to open its full forecast."
         />

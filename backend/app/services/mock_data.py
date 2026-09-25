@@ -13,6 +13,7 @@ decays with horizon, which is an honest signal, not decoration.
 
 import hashlib
 import math
+import time
 from datetime import date, timedelta
 
 from app.data.districts import DISTRICTS
@@ -167,8 +168,19 @@ def _classify_risk(snapshot: dict) -> str:
     return "normal"
 
 
-def get_all_districts_snapshot() -> list[dict]:
-    """Lightweight per-district current snapshot for the national risk map."""
+# Running real ensemble predictions for all 423 districts takes ~30s+ (worse
+# under Render's free-tier CPU) -- far past what a page load or the platform's
+# own request timeout will tolerate. The underlying climate indices only
+# change at most every 6h (see live_climate.py) and district static data
+# never changes, so recomputing this on every request is pure waste. Cache
+# the whole snapshot with a TTL well under that 6h window, so it's cheap to
+# refresh (picks up climate changes reasonably promptly) but virtually every
+# real user request hits the cache instead of paying the full cost.
+_snapshot_cache = {"value": None, "computed_at": 0.0}
+SNAPSHOT_CACHE_TTL_SECONDS = 15 * 60
+
+
+def _compute_all_districts_snapshot() -> list[dict]:
     out = []
     for d in DISTRICTS:
         district_id = d[0]
@@ -188,6 +200,20 @@ def get_all_districts_snapshot() -> list[dict]:
             }
         )
     return out
+
+
+def get_all_districts_snapshot() -> list[dict]:
+    """Cached (15 min TTL) current snapshot for every district -- powers the
+    national risk map. See the cache comment above for why this is cached
+    rather than computed fresh on every request."""
+    now = time.time()
+    if _snapshot_cache["value"] is not None and (now - _snapshot_cache["computed_at"]) < SNAPSHOT_CACHE_TTL_SECONDS:
+        return _snapshot_cache["value"]
+
+    snapshot = _compute_all_districts_snapshot()
+    _snapshot_cache["value"] = snapshot
+    _snapshot_cache["computed_at"] = now
+    return snapshot
 
 
 def get_national_summary() -> dict:

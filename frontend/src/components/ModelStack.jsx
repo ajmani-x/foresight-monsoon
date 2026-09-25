@@ -3,29 +3,29 @@ import { motion, useScroll, useTransform } from "framer-motion";
 
 const STAGES = [
   {
-    tag: "M2 · Deep Learning",
-    title: "Teleconnection Encoder",
-    desc: "LSTM / Transformer over ENSO, IOD and MJO time series, learning a latent global climate-state embedding.",
+    tag: "Live · NOAA CPC, NOAA PSL, BoM",
+    title: "Live Teleconnection Feed",
+    desc: "ONI (ENSO), DMI (IOD) and RMM (MJO) fetched live from their official sources on a 6-hour cache, not a frozen snapshot.",
   },
   {
-    tag: "M3 · Deep Learning",
-    title: "Spatial Downscaling",
-    desc: "Graph Neural Network over the block/district adjacency graph, propagating the global embedding into local rainfall signatures.",
+    tag: "Live · OpenStreetMap Nominatim",
+    title: "Farmer Geocoding",
+    desc: "Any village, town, or district name a farmer types is resolved to real coordinates — not limited to a fixed list.",
   },
   {
-    tag: "M3 · Deep Learning",
-    title: "Temporal Forecasting Head",
-    desc: "Temporal Fusion Transformer producing 7–30 day quantile forecasts — real uncertainty bands, not point estimates.",
-  },
-  {
-    tag: "M4 · Machine Learning",
+    tag: "Machine Learning · XGBoost, RF, GB, Ridge",
     title: "Calibration Ensemble",
-    desc: "XGBoost blends DL outputs against historical break-monsoon labels — the credibility shield on sparse data.",
+    desc: "A 4-model ensemble per target (onset / break / heavy-rain), trained on 25 years of real India IMD gridded rainfall and real climate indices — the actual predictive core, not a stand-in.",
   },
   {
-    tag: "M5 · Expert System",
+    tag: "Expert System",
     title: "Advisory Engine",
-    desc: "Explainable rule-based layer mapping calibrated probabilities + crop stage to concrete farmer actions.",
+    desc: "Explainable rule-based layer mapping calibrated probabilities + crop stage to concrete, bilingual (EN/HI) farmer actions.",
+  },
+  {
+    tag: "LLM · Groq, Anthropic fallback",
+    title: "Personalization & Delivery",
+    desc: "An LLM rephrases the rule-based advisory for tone, language, and the farmer's specific crop/land situation — never inventing numbers — delivered over WhatsApp or this dashboard.",
   },
 ];
 
@@ -48,8 +48,10 @@ export default function ModelStack() {
             From planetary signals to a farmer&apos;s decision
           </h2>
           <p className="mt-4 text-[14.5px] text-fog leading-relaxed max-w-sm">
-            Deep learning where it earns its place, calibration where honesty about
-            data scarcity matters, and rules where explainability matters most.
+            Live data feeding a real trained ensemble, honest calibration on
+            genuinely scarce Indian rainfall data, and rules where explainability
+            matters most — a spatial (GNN) and temporal (TFT) deep-learning layer
+            are the natural next upgrade, not yet built.
           </p>
           <div className="mt-8 pt-6 border-t border-border text-[12px] text-mist leading-relaxed max-w-sm">
             <span className="text-fog font-medium">Data sources — </span>

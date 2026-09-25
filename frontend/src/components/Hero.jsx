@@ -113,9 +113,9 @@ export default function Hero({ summary }) {
           variants={fadeUp}
           className="mt-8 max-w-xl text-[16px] leading-relaxed text-fog"
         >
-          A hybrid deep learning pipeline — teleconnection encoders, spatial-temporal
-          graph networks, and calibrated ensembles — turning ENSO, IOD, and MJO signals
-          into a 7-to-30-day onset, break, and revival outlook for every district.
+          A real, trained calibration ensemble — turning live ENSO, IOD, and MJO
+          signals into a 7-to-30-day onset, break, and heavy-rain outlook for any
+          district a farmer names.
         </motion.p>
 
         <motion.div
