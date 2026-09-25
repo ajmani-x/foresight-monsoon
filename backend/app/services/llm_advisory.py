@@ -13,12 +13,13 @@ invent risk numbers. The prompt hands it the real probabilities and rule-
 based recommendation as fixed facts and instructs it not to add figures
 that weren't given.
 
-Provider is abstracted behind `_call_llm()` so switching between Anthropic,
-OpenAI, or any other provider is a one-function change — no API key is
-configured yet, so this currently degrades gracefully: if ANTHROPIC_API_KEY
-isn't set, `generate_personalized_advisory` falls back to the rule-based
-advisory text unchanged and marks `llm_generated: False`, rather than
-failing the request.
+Provider is abstracted behind `_call_llm()` so switching between providers
+is a one-function change. Currently tries Groq first (GROQ_API_KEY — fast,
+free-tier-friendly inference for open models), then Anthropic
+(ANTHROPIC_API_KEY) if Groq isn't configured. If neither is set,
+`generate_personalized_advisory` falls back to the rule-based advisory
+text unchanged and marks `llm_generated: False`, rather than failing the
+request.
 """
 
 import os
@@ -36,12 +37,34 @@ write in the requested language (English or Hindi, using simple everyday words, 
 not formal/literary language). Keep it under 80 words. Do not use markdown."""
 
 
-def _call_llm(system_prompt: str, user_prompt: str) -> str | None:
-    """Returns the LLM's text response, or None if no provider is configured."""
+def _call_groq(system_prompt: str, user_prompt: str) -> str | None:
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        return None
+    try:
+        import groq
+
+        client = groq.Groq(api_key=api_key)
+        response = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            max_tokens=1000,
+            extra_body={"reasoning_effort": "low"},
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+        )
+        content = response.choices[0].message.content
+        return content.strip() if content else None
+    except Exception as e:
+        print(f"[llm_advisory] Groq call failed: {e}")
+        return None
+
+
+def _call_anthropic(system_prompt: str, user_prompt: str) -> str | None:
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         return None
-
     try:
         import anthropic
 
@@ -54,8 +77,14 @@ def _call_llm(system_prompt: str, user_prompt: str) -> str | None:
         )
         return response.content[0].text.strip()
     except Exception as e:
-        print(f"[llm_advisory] LLM call failed, falling back to rule-based text: {e}")
+        print(f"[llm_advisory] Anthropic call failed: {e}")
         return None
+
+
+def _call_llm(system_prompt: str, user_prompt: str) -> str | None:
+    """Returns the LLM's text response, or None if no provider is configured
+    or all configured providers failed."""
+    return _call_groq(system_prompt, user_prompt) or _call_anthropic(system_prompt, user_prompt)
 
 
 def generate_personalized_advisory(farmer: FarmerProfile, forecast: dict) -> dict:
