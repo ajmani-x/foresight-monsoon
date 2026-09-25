@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import advisory, districts, farmers, forecast
+from app.routers import advisory, districts, farmers, forecast, whatsapp
 
 app = FastAPI(
     title="Foresight API",
@@ -20,6 +20,7 @@ app.include_router(districts.router)
 app.include_router(forecast.router)
 app.include_router(advisory.router)
 app.include_router(farmers.router)
+app.include_router(whatsapp.router)
 
 
 @app.get("/api/health")
