@@ -94,3 +94,31 @@ def predict_district(district_id: str, lat: float, lon: float, coastal: int, dry
     brk = float(np.clip(bundle["models"]["break"].predict(row)[0], 0.02, 0.97))
     heavy = float(np.clip(bundle["models"]["heavy"].predict(row)[0], 0.01, 0.9))
     return onset, brk, heavy
+
+
+def predict_batch(rows: list[dict]) -> list[tuple[float, float, float]]:
+    """Same model, same features as predict_district, but for many
+    districts at once in 3 vectorized .predict() calls (one per target)
+    instead of one Python-level call per district per target.
+
+    This exists because looping predict_district() over all 423 districts
+    (the national map/summary endpoints) took 30s+ even on a fast machine,
+    and far longer on Render's throttled free-tier CPU -- per-call overhead
+    on a 1-row DataFrame dominates at this scale; batching amortizes it
+    away almost entirely (verified: same 423 districts in well under a
+    second). Each row must already contain every key in
+    calibration_ensemble's `features` list (lat, lon, coastal, dry_belt,
+    oni, dmi, mjo_amplitude, mjo_phase, month).
+    """
+    bundle = _load_bundle()
+    df = pd.DataFrame(rows)[bundle["features"]]
+
+    onset = np.clip(bundle["models"]["onset"].predict(df), 0.02, 0.97)
+    brk = np.clip(bundle["models"]["break"].predict(df), 0.02, 0.97)
+    heavy = np.clip(bundle["models"]["heavy"].predict(df), 0.01, 0.9)
+
+    return list(zip(
+        (float(v) for v in onset),
+        (float(v) for v in brk),
+        (float(v) for v in heavy),
+    ))

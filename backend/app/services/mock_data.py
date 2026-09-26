@@ -17,7 +17,7 @@ import time
 from datetime import date, timedelta
 
 from app.data.districts import DISTRICTS
-from app.models.inference import current_climate_state, predict_district
+from app.models.inference import current_climate_state, predict_batch, predict_district
 
 COASTAL_STATES = {"Kerala", "Karnataka", "West Bengal", "Odisha", "Assam", "Tamil Nadu"}
 DRY_BELT_STATES = {"Rajasthan", "Gujarat", "Maharashtra", "Telangana", "Madhya Pradesh"}
@@ -181,22 +181,52 @@ SNAPSHOT_CACHE_TTL_SECONDS = 15 * 60
 
 
 def _compute_all_districts_snapshot() -> list[dict]:
-    out = []
+    # Deliberately bypasses get_district_forecast/_build_forecast here --
+    # that path builds a full 30-day timeline (noise, drift, per-day loop)
+    # per district and calls the model once per district per target, which
+    # is far more work than the map/summary views need (just today's
+    # probabilities). predict_batch does the same 3 model calls total
+    # (one per target) across all districts at once instead of 423*3.
+    idx = current_climate_state()
+    month = date.today().month
+
+    rows = []
     for d in DISTRICTS:
-        district_id = d[0]
-        forecast = get_district_forecast(district_id, horizon_days=1)
+        _, name, state, lat, lon, crop = d
+        rows.append(
+            {
+                "lat": lat,
+                "lon": lon,
+                "coastal": 1 if state in COASTAL_STATES else 0,
+                "dry_belt": 1 if state in DRY_BELT_STATES else 0,
+                "oni": idx["oni"],
+                "dmi": idx["dmi"],
+                "mjo_amplitude": idx["mjo_amplitude"],
+                "mjo_phase": idx["mjo_phase"],
+                "month": month,
+            }
+        )
+
+    predictions = predict_batch(rows)
+
+    out = []
+    for d, (onset, brk, heavy) in zip(DISTRICTS, predictions):
+        district_id, name, state, lat, lon, crop = d
+        risk_level = _classify_risk(
+            {"onset_probability": onset, "break_probability": brk, "heavy_rain_probability": heavy}
+        )
         out.append(
             {
-                "district_id": forecast["district_id"],
-                "district_name": forecast["district_name"],
-                "state": forecast["state"],
-                "lat": forecast["lat"],
-                "lon": forecast["lon"],
-                "primary_crop": forecast["primary_crop"],
-                "risk_level": forecast["risk_level"],
-                "onset_probability": forecast["current"]["onset_probability"],
-                "break_probability": forecast["current"]["break_probability"],
-                "heavy_rain_probability": forecast["current"]["heavy_rain_probability"],
+                "district_id": district_id,
+                "district_name": name,
+                "state": state,
+                "lat": lat,
+                "lon": lon,
+                "primary_crop": crop,
+                "risk_level": risk_level,
+                "onset_probability": round(onset, 3),
+                "break_probability": round(brk, 3),
+                "heavy_rain_probability": round(heavy, 3),
             }
         )
     return out
