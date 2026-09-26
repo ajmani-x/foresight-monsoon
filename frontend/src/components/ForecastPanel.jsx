@@ -10,7 +10,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { getDistrictAdvisory, getDistrictForecast } from "../lib/api";
+import { Users } from "lucide-react";
+import { getDistrictAdvisory, getDistrictFarmers, getDistrictForecast } from "../lib/api";
 import { SEVERITY_META } from "../lib/risk";
 import { SectionHeading } from "./RiskMap";
 import { useCountUp } from "../hooks/useCountUp";
@@ -19,11 +20,14 @@ export default function ForecastPanel({ districtId }) {
   const [forecast, setForecast] = useState(null);
   const [advisory, setAdvisory] = useState(null);
   const [lang, setLang] = useState("en");
+  const [nearbyFarmers, setNearbyFarmers] = useState(null);
 
   useEffect(() => {
     if (!districtId) return;
     getDistrictForecast(districtId, 30).then(setForecast);
     getDistrictAdvisory(districtId).then((r) => setAdvisory(r.advisory));
+    setNearbyFarmers(null);
+    getDistrictFarmers(districtId).then(setNearbyFarmers);
   }, [districtId]);
 
   if (!districtId) return null;
@@ -41,7 +45,7 @@ export default function ForecastPanel({ districtId }) {
       <div className="mx-auto max-w-7xl">
         <div className="flex items-end justify-between flex-wrap gap-4">
           <SectionHeading
-            eyebrow="Temporal forecasting head · TFT quantile outlook"
+            eyebrow="Calibration ensemble · 30-day outlook"
             title={forecast ? `${forecast.district_name}, ${forecast.state}` : "Loading forecast…"}
             description="30-day probabilistic outlook with widening uncertainty bands further out the horizon — an honest signal, not false precision."
           />
@@ -189,6 +193,53 @@ export default function ForecastPanel({ districtId }) {
             )}
           </motion.div>
         </div>
+
+        {nearbyFarmers && nearbyFarmers.farmers.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="mt-6 rounded-3xl border border-border bg-surface/60 p-6"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <Users size={15} className="text-monsoon-glow" />
+              <div className="text-[11px] uppercase tracking-wider text-mist">
+                {nearbyFarmers.farmers.length} registered farmer
+                {nearbyFarmers.farmers.length === 1 ? "" : "s"} within {nearbyFarmers.radius_km} km
+                (via WhatsApp)
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {nearbyFarmers.farmers.map((f) => (
+                <div
+                  key={f.phone_masked + f.name}
+                  className="rounded-xl border border-border p-4 text-[13px]"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-paper">{f.name}</span>
+                    <span className="text-[11px] text-mist">{f.distance_km} km</span>
+                  </div>
+                  <div className="mt-1.5 text-mist">{f.district_name}</div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {f.crops.map((c) => (
+                      <span
+                        key={c}
+                        className="rounded-full bg-surface-2 border border-border px-2 py-0.5 text-[11px] text-fog"
+                      >
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-2 text-[11.5px] text-mist">
+                    {f.land_size_acres ? `${f.land_size_acres} acres` : "Land size unknown"} ·{" "}
+                    {f.irrigation_access ? "Irrigated" : "Rainfed"} · {f.phone_masked}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </div>
     </section>
   );
