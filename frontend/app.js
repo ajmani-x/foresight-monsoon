@@ -112,6 +112,8 @@ const I18N = {
     weather_at: 'Weather at', cond_rain: 'Rain', cond_clear: 'Clear', week_n: 'Week {n}',
     sowing_calendar_note: 'Based on the typical sowing calendar for {crop} — this district\'s real registered crop, not a hypothetical selection.',
     recommended_action: 'Recommended action',
+    probability_word: 'probability', open_crop_advisory: 'Open Crop Advisory →',
+    nearby_farmers_title: 'Registered farmers nearby (WhatsApp)', no_farmers_nearby: 'No farmers registered near this district yet.',
     selected_district: 'SELECTED DISTRICT', what_it_means: 'What it means',
     monsoon_onset_caps: 'MONSOON ONSET', real_model_output_for: 'Real model output for', climate_data_as_of: 'climate data as of',
     confidence_decay_note: 'Confidence decays with forecast horizon in a documented way — not false precision on a 30-day-out prediction. See the project README.',
@@ -160,6 +162,8 @@ const I18N = {
     weather_at: 'मौसम -', cond_rain: 'बारिश', cond_clear: 'साफ', week_n: 'सप्ताह {n}',
     sowing_calendar_note: '{crop} के लिए विशिष्ट बुवाई कैलेंडर पर आधारित — यह जिले की वास्तविक पंजीकृत फसल है, कोई काल्पनिक चयन नहीं।',
     recommended_action: 'अनुशंसित कार्रवाई',
+    probability_word: 'संभावना', open_crop_advisory: 'फसल सलाह खोलें →',
+    nearby_farmers_title: 'आस-पास पंजीकृत किसान (WhatsApp)', no_farmers_nearby: 'इस जिले के पास अभी तक कोई किसान पंजीकृत नहीं।',
     selected_district: 'चयनित जिला', what_it_means: 'इसका मतलब',
     monsoon_onset_caps: 'मानसून आगमन', real_model_output_for: 'के लिए वास्तविक मॉडल परिणाम', climate_data_as_of: 'जलवायु डेटा दिनांक',
     confidence_decay_note: 'विश्वास पूर्वानुमान अवधि के साथ एक प्रलेखित तरीके से घटता है — 30-दिन दूर के पूर्वानुमान पर झूठी सटीकता नहीं। प्रोजेक्ट README देखें।',
@@ -175,6 +179,29 @@ function applyStaticI18n() {
 }
 
 function pct(x) { return Math.round(x * 100) + '%'; }
+
+// Animates a percentage into place instead of snapping straight to the
+// final number -- small polish, no functional effect on the real value.
+// A per-element run token discards stale frames if called again mid-flight
+// (e.g. switching districts quickly), so two animations never fight over
+// the same element's text.
+const _animTokens = new WeakMap();
+function animatePct(el, targetFraction, duration = 650) {
+  if (!el) return;
+  const target = Math.round(targetFraction * 100);
+  const start = parseInt(el.textContent) || 0;
+  const token = Symbol();
+  _animTokens.set(el, token);
+  const t0 = performance.now();
+  function tick(now) {
+    if (_animTokens.get(el) !== token) return;
+    const p = Math.min(1, (now - t0) / duration);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(start + (target - start) * eased) + '%';
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
 function cropEmoji(crop) { return CROP_EMOJI[crop] || '🌱'; }
 function metricLabel(m) { return m === 'onset_probability' ? t('tab_onset') : m === 'break_probability' ? t('tab_break') : t('tab_heavy'); }
 function riskColor(p) { return p >= 71 ? '#ef5262' : p >= 41 ? '#f0bd42' : '#35d69a'; }
@@ -206,7 +233,9 @@ async function boot() {
     $('#statusLine').textContent = '● AI services online';
   } catch (e) {
     $('#statusLine').textContent = '● backend unreachable';
+    $('#bootOverlay small').textContent = 'Backend unreachable — retrying shortly…';
     console.error(e);
+    setTimeout(boot, 5000);
     return;
   }
 
@@ -218,6 +247,7 @@ async function boot() {
   renderAnalyticsR2();
   renderFeatureImportancePage();
   await refreshAlerts();
+  $('#bootOverlay').classList.add('hidden');
 }
 
 function populateFilters() {
@@ -264,6 +294,8 @@ function plotMarkers() {
         .addTo(map)
         .bindPopup(`<b>${d.district_name}</b><br>Onset ${Math.round(d.onset_probability * 100)}% · Dry Spell ${Math.round(d.break_probability * 100)}% · Heavy ${Math.round(d.heavy_rain_probability * 100)}%`);
       marker.on('click', () => selectDistrict(d.district_id));
+      marker.on('mouseover', () => marker.setRadius(10));
+      marker.on('mouseout', () => marker.setRadius(6));
       store[d.district_id] = marker;
     });
   });
@@ -340,9 +372,9 @@ async function refreshAll() {
 // ---------- Overview: metrics ----------
 function renderMetrics() {
   const c = currentForecast.current;
-  $('#m-onset').textContent = pct(c.onset_probability);
-  $('#m-break').textContent = pct(c.break_probability);
-  $('#m-heavy').textContent = pct(c.heavy_rain_probability);
+  animatePct($('#m-onset'), c.onset_probability);
+  animatePct($('#m-break'), c.break_probability);
+  animatePct($('#m-heavy'), c.heavy_rain_probability);
   const label = confLabel(c.confidence);
   $('#m-onset-conf').textContent = label;
   $('#m-break-conf').textContent = label;
@@ -480,23 +512,31 @@ function renderRiskSelectedPanel() {
   const d = district(selectedDistrictId);
   if (!snap || !currentAdvisory) return;
   const p = Math.round(snap[activeMapMetric] * 100);
+  const farmers = currentFarmers?.farmers || [];
+  const farmersHtml = farmers.length
+    ? `<div style="display:flex;flex-direction:column;gap:6px">${farmers.slice(0, 6).map((f) => `<div style="font-size:8px;color:#8ca5b1;display:flex;justify-content:space-between"><span>${f.name} · ${f.crops.join(', ') || '—'}</span><span>${f.distance_km} km</span></div>`).join('')}</div>`
+    : `<div class="farmer-empty"><span>👤</span><small>${t('no_farmers_nearby')}</small></div>`;
   $('#selectedPanel').innerHTML = `
     <small>${t('selected_district')}</small>
     <h2>${d.name}</h2>
-    <strong>${p}%</strong><em>${metricLabel(activeMapMetric)} probability</em>
+    <strong>${p}%</strong><em>${metricLabel(activeMapMetric)} ${t('probability_word')}</em>
     <hr>
-    <p>Onset <b>${Math.round(snap.onset_probability * 100)}%</b></p>
-    <p>Dry Spell <b>${Math.round(snap.break_probability * 100)}%</b></p>
-    <p>Heavy Rain <b>${Math.round(snap.heavy_rain_probability * 100)}%</b></p>
+    <p>${t('tab_onset')} <b>${Math.round(snap.onset_probability * 100)}%</b></p>
+    <p>${t('tab_break')} <b>${Math.round(snap.break_probability * 100)}%</b></p>
+    <p>${t('tab_heavy')} <b>${Math.round(snap.heavy_rain_probability * 100)}%</b></p>
     <hr>
     <h3>${t('what_it_means')}</h3>
     <p>${av(currentAdvisory.advisory, 'message')}</p>
-    <button class="primary" onclick="show('advisory')">Open Crop Advisory →</button>`;
+    <button class="primary" onclick="show('advisory')">${t('open_crop_advisory')}</button>
+    <hr>
+    <h3>${t('nearby_farmers_title')} <small style="font-weight:400;color:#547d91">(${farmers.length})</small></h3>
+    ${farmersHtml}`;
 }
 
 function renderForecastPage() {
   const c = currentForecast.current;
-  $('#forecastHero').innerHTML = `<div>${t('monsoon_onset_caps')}<strong>${pct(c.onset_probability)}</strong><em>${confLabel(c.confidence)}</em><p>${t('real_model_output_for')} ${currentForecast.district_name}</p></div><span>🌧️</span>`;
+  $('#forecastHero').innerHTML = `<div>${t('monsoon_onset_caps')}<strong id="forecastHeroOnset">0%</strong><em>${confLabel(c.confidence)}</em><p>${t('real_model_output_for')} ${currentForecast.district_name}</p></div><span>🌧️</span>`;
+  animatePct($('#forecastHeroOnset'), c.onset_probability);
   $('#forecastAsOf').textContent = `● ${t('climate_data_as_of')} ${currentForecast.climate_context.as_of}`;
 
   const labels = currentForecast.timeline.map((t) => t.date.slice(5));
@@ -512,7 +552,8 @@ function renderForecastPage() {
     options: opts,
   });
 
-  $('#confRing').innerHTML = `${pct(c.confidence)}<small>CONFIDENCE</small>`;
+  $('#confRing').innerHTML = `<span id="confRingVal">0%</span><small>${t('confidence_caps')}</small>`;
+  animatePct($('#confRingVal'), c.confidence);
   $('#confDesc').textContent = t('confidence_decay_note');
   $('#confOnset').textContent = pct(c.onset_probability);
   $('#confBreak').textContent = pct(c.break_probability);
