@@ -9,18 +9,18 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="rain"></div><div class="glow g1"></div><div class="glow g2"></div>
+<div class="glow g1"></div><div class="glow g2"></div>
 <div class="shell">
 <aside>
   <div class="brand"><div class="cloud">☁</div><div><b>Foresight</b><small>Hyperlocal Monsoon Intelligence</small><em>SIH 2026 | SIH26086</em></div></div>
   <nav>
-    <button class="nav active" data-page="overview">⌂ <span>Overview</span></button>
-    <button class="nav" data-page="risk">⌖ <span>Risk Map</span></button>
-    <button class="nav" data-page="forecast">◌ <span>Forecast</span></button>
-    <button class="nav" data-page="advisory">▣ <span>Advisory</span></button>
-    <button class="nav" data-page="analytics">▥ <span>Analytics</span></button>
-    <button class="nav" data-page="alerts">♧ <span>Alert Center</span></button>
-    <button class="nav" data-page="farmer">♙ <span>Farmer Mode</span></button>
+    <button class="nav active" data-page="overview">⌂ <span data-i18n="nav_overview">Overview</span></button>
+    <button class="nav" data-page="risk">⌖ <span data-i18n="nav_risk">Risk Map</span></button>
+    <button class="nav" data-page="forecast">◌ <span data-i18n="nav_forecast">Forecast</span></button>
+    <button class="nav" data-page="advisory">▣ <span data-i18n="nav_advisory">Advisory</span></button>
+    <button class="nav" data-page="analytics">▥ <span data-i18n="nav_analytics">Analytics</span></button>
+    <button class="nav" data-page="alerts">♧ <span data-i18n="nav_alerts">Alert Center</span></button>
+    <button class="nav" data-page="farmer">♙ <span data-i18n="nav_farmer">Farmer Mode</span></button>
   </nav>
   <div class="farmer-quote">"समय पर सही जानकारी,<br>किसानों की खुशहाली।"<strong>⌁</strong></div>
   <small class="online" id="statusLine">● connecting…</small>
@@ -28,69 +28,69 @@
 
 <main>
 <header>
-  <div class="head-left"><span>☁</span><div><small>MONSOON INTELLIGENCE SYSTEM</small><h1 id="title">Overview</h1></div></div>
-  <div class="tagline"><b>Real model. Real climate data.</b><br>7&ndash;30 day district-level forecasts</div>
-  <div class="head-right"><select><option>English</option><option>हिन्दी</option></select><button class="user">F</button> Foresight</div>
+  <div class="head-left"><span>☁</span><div><small data-i18n="system_label">MONSOON INTELLIGENCE SYSTEM</small><h1 id="title">Overview</h1></div></div>
+  <div class="tagline"><b data-i18n="tagline_b">Real model. Real climate data.</b><br><span data-i18n="tagline_p">7&ndash;30 day district-level forecasts</span></div>
+  <div class="head-right"><select id="langSelect"><option value="en">English</option><option value="hi">हिन्दी</option></select><button class="user">F</button> Foresight</div>
 </header>
 
 <section class="filters">
-<label>State<select id="stateSelect"></select></label>
-<label>District<select id="districtSelect"></select></label>
-<div class="sep"></div><span>Forecast Horizon</span>
-<button class="range" data-days="7">7 Days</button><button class="range" data-days="14">14 Days</button><button class="range active" data-days="30">30 Days</button>
-<div class="today">▣ Today: <b id="todayDate">—</b>　🌦️ <strong id="todayTemp">—</strong> <small id="todayCond">Loading weather…</small></div>
+<label><span data-i18n="filter_state">State</span><select id="stateSelect"></select></label>
+<label><span data-i18n="filter_district">District</span><select id="districtSelect"></select></label>
+<div class="sep"></div><span data-i18n="filter_horizon">Forecast Horizon</span>
+<button class="range" data-days="7" data-i18n="days_7">7 Days</button><button class="range" data-days="14" data-i18n="days_14">14 Days</button><button class="range active" data-days="30" data-i18n="days_30">30 Days</button>
+<div class="today">▣ <span data-i18n="today_label">Today:</span> <b id="todayDate">—</b>　🌦️ <strong id="todayTemp">—</strong> <small id="todayCond">Loading weather…</small></div>
 </section>
 
 <div id="pages">
 <section class="page active" id="overview">
 <div class="metrics">
-<div class="metric c1"><span>🌧️</span><div>Monsoon Onset<strong id="m-onset">—</strong><em id="m-onset-conf">—</em><small id="m-onset-note">—</small></div></div>
-<div class="metric c2"><span>☀️</span><div>Dry Spell / Break<strong id="m-break">—</strong><em id="m-break-conf">—</em><small id="m-break-note">—</small></div></div>
-<div class="metric c3"><span>⛈️</span><div>Heavy Rain<strong id="m-heavy">—</strong><em id="m-heavy-conf">—</em><small id="m-heavy-note">—</small></div></div>
+<div class="metric c1"><span>🌧️</span><div><span data-i18n="metric_onset">Monsoon Onset</span><strong id="m-onset">—</strong><em id="m-onset-conf">—</em><small id="m-onset-note">—</small></div></div>
+<div class="metric c2"><span>☀️</span><div><span data-i18n="metric_break">Dry Spell / Break</span><strong id="m-break">—</strong><em id="m-break-conf">—</em><small id="m-break-note">—</small></div></div>
+<div class="metric c3"><span>⛈️</span><div><span data-i18n="metric_heavy">Heavy Rain</span><strong id="m-heavy">—</strong><em id="m-heavy-conf">—</em><small id="m-heavy-note">—</small></div></div>
 </div>
 
 <div class="grid top">
 <article class="card map-card">
-<div class="card-head"><div><h2>◈ District-wise Risk Map</h2><small>Live probability, 423 districts nationally</small></div><div class="tabs" id="mapTabs"><button class="sel" data-metric="onset_probability">Onset</button><button data-metric="break_probability">Dry Spell</button><button data-metric="heavy_rain_probability">Heavy Rain</button></div></div>
+<div class="card-head"><div><h2><span data-i18n="map_title">◈ District-wise Risk Map</span></h2><small data-i18n="map_sub">Live probability, 423 districts nationally</small></div><div class="tabs" id="mapTabs"><button class="sel" data-metric="onset_probability" data-i18n="tab_onset">Onset</button><button data-metric="break_probability" data-i18n="tab_break">Dry Spell</button><button data-metric="heavy_rain_probability" data-i18n="tab_heavy">Heavy Rain</button></div></div>
 <div id="map"></div>
-<div class="legend"><span>● Low Risk (0–40%)</span><span>● Moderate (41–70%)</span><span>● High (71–100%)</span></div>
+<div class="legend"><span data-i18n="legend_low">● Low Risk (0–40%)</span><span data-i18n="legend_mod">● Moderate (41–70%)</span><span data-i18n="legend_high">● High (71–100%)</span></div>
 </article>
 
 <article class="card outlook">
-<div class="card-head"><div><h2>◔ 30-Day Monsoon Outlook</h2><small>Real model output for the selected district</small></div></div>
-<div class="switch" id="outlookSwitch"><button class="sel" data-metric="Onset">Onset</button><button data-metric="Break">Dry Spell</button><button data-metric="Heavy rain">Heavy Rain</button></div>
+<div class="card-head"><div><h2 data-i18n="outlook_title">◔ 30-Day Monsoon Outlook</h2><small data-i18n="outlook_sub">Real model output for the selected district</small></div></div>
+<div class="switch" id="outlookSwitch"><button class="sel" data-metric="Onset" data-i18n="tab_onset">Onset</button><button data-metric="Break" data-i18n="tab_break">Dry Spell</button><button data-metric="Heavy rain" data-i18n="tab_heavy">Heavy Rain</button></div>
 <div class="chart"><canvas id="outlook"></canvas></div>
-<div class="drivers"><h3>Key Climate Drivers <small style="color:#5e8292;font-weight:400">(live)</small></h3><div class="driver" id="driversRow"></div></div>
+<div class="drivers"><h3><span data-i18n="drivers_title">Key Climate Drivers</span> <small style="color:#5e8292;font-weight:400" data-i18n="live_tag">(live)</small></h3><div class="driver" id="driversRow"></div></div>
 </article>
 
 <article class="card weather">
-<div class="card-head"><div><h2 id="weatherTitle">⌂ Weather</h2><small>Live conditions (Open-Meteo)</small></div></div>
-<div class="weather-main">🌧️ <div><strong id="weatherTemp">—</strong><small id="weatherCond">Loading…</small></div><aside>Humidity <b id="weatherHumidity">—</b><br>Wind <b id="weatherWind">—</b><br>Precip <b id="weatherPrecip">—</b></aside></div>
-<h3>Next Hours</h3><div class="hours" id="hoursRow"></div>
-<h3>Quick Actions</h3><div class="quick"><button onclick="window.print()">⇩<small>Download Report</small></button><button id="shareBtn">⌯<small>Share Dashboard</small></button><button id="sendAdvisoryBtn">➤<small>Send Advisory</small></button></div>
+<div class="card-head"><div><h2 id="weatherTitle">⌂ Weather</h2><small data-i18n="weather_sub">Live conditions (Open-Meteo)</small></div></div>
+<div class="weather-main">🌧️ <div><strong id="weatherTemp">—</strong><small id="weatherCond">Loading…</small></div><aside><span data-i18n="humidity">Humidity</span> <b id="weatherHumidity">—</b><br><span data-i18n="wind">Wind</span> <b id="weatherWind">—</b><br><span data-i18n="precip">Precip</span> <b id="weatherPrecip">—</b></aside></div>
+<h3 data-i18n="next_hours">Next Hours</h3><div class="hours" id="hoursRow"></div>
+<h3 data-i18n="quick_actions">Quick Actions</h3><div class="quick"><button onclick="window.print()">⇩<small data-i18n="download_report">Download Report</small></button><button id="shareBtn">⌯<small data-i18n="share_dashboard">Share Dashboard</small></button><button id="sendAdvisoryBtn">➤<small data-i18n="send_advisory">Send Advisory</small></button></div>
 </article>
 </div>
 
 <div class="grid bottom">
-<article class="card timeline"><div class="card-head"><h2>◌ Monsoon Timeline <small>(Next 30 Days, weekly)</small></h2></div><div class="weeks" id="weeksRow"></div></article>
-<article class="card advisory"><div class="card-head"><h2>♧ Crop Advisory</h2><button onclick="show('advisory')">View all →</button></div><div class="crop-tabs" id="cropChip"></div><div class="advice" id="overviewAdvice"></div></article>
-<article class="card rainfall"><div class="card-head"><h2>⇅ 30-Day Probability Trend</h2></div><table id="probTable"><tr><th>Week</th><th>Onset</th><th>Break</th><th>Heavy</th></tr></table><div class="warn" id="probWarn" style="display:none"></div></article>
-<article class="card confidence"><div class="card-head"><h2>◒ Model Confidence</h2></div><p>Today's forecast <b id="confVal">—</b><i><u id="confBar" style="width:0%"></u></i></p><h3>Real global feature importance</h3><small id="fi-1">—</small><small id="fi-2">—</small><small id="fi-3">—</small></article>
+<article class="card timeline"><div class="card-head"><h2><span data-i18n="timeline_title">◌ Monsoon Timeline</span> <small data-i18n="timeline_sub">(Next 30 Days, weekly)</small></h2></div><div class="weeks" id="weeksRow"></div></article>
+<article class="card advisory"><div class="card-head"><h2 data-i18n="crop_advisory_title">♧ Crop Advisory</h2><button onclick="show('advisory')" data-i18n="view_all">View all →</button></div><div class="crop-tabs" id="cropChip"></div><div class="advice" id="overviewAdvice"></div></article>
+<article class="card rainfall"><div class="card-head"><h2 data-i18n="prob_trend_title">⇅ 30-Day Probability Trend</h2></div><table id="probTable"><tr><th data-i18n="th_week">Week</th><th data-i18n="tab_onset">Onset</th><th data-i18n="th_break">Break</th><th data-i18n="th_heavy">Heavy</th></tr></table><div class="warn" id="probWarn" style="display:none"></div></article>
+<article class="card confidence"><div class="card-head"><h2 data-i18n="confidence_title">◒ Model Confidence</h2></div><p><span data-i18n="todays_forecast">Today's forecast</span> <b id="confVal">—</b><i><u id="confBar" style="width:0%"></u></i></p><h3 data-i18n="fi_title">Real global feature importance</h3><small id="fi-1">—</small><small id="fi-2">—</small><small id="fi-3">—</small></article>
 </div>
-<div class="alerts-strip" id="alertsStrip"><b>♧ Recent Alerts</b></div>
+<div class="alerts-strip" id="alertsStrip"><b data-i18n="recent_alerts">♧ Recent Alerts</b></div>
 </section>
 
-<section class="page" id="risk"><div class="page-title"><div><h2>Risk Intelligence Map</h2><p>Explore district-level monsoon risks nationally.</p></div></div><div class="risk-layout"><div class="card bigmap"><div class="tabs" id="riskMapTabs"><button class="sel" data-metric="onset_probability">Onset</button><button data-metric="break_probability">Dry Spell</button><button data-metric="heavy_rain_probability">Heavy Rain</button></div><div id="riskMap"></div></div><div class="card selected" id="selectedPanel"></div></div></section>
+<section class="page" id="risk"><div class="page-title"><div><h2 data-i18n="page_risk_title">Risk Intelligence Map</h2><p data-i18n="risk_sub">Explore district-level monsoon risks nationally.</p></div></div><div class="risk-layout"><div class="card bigmap"><div class="tabs" id="riskMapTabs"><button class="sel" data-metric="onset_probability" data-i18n="tab_onset">Onset</button><button data-metric="break_probability" data-i18n="tab_break">Dry Spell</button><button data-metric="heavy_rain_probability" data-i18n="tab_heavy">Heavy Rain</button></div><div id="riskMap"></div></div><div class="card selected" id="selectedPanel"></div></div></section>
 
-<section class="page" id="forecast"><div class="page-title"><div><h2>Probabilistic Forecast</h2><p>Real model output + a documented uncertainty-widening timeline.</p></div><span class="live" id="forecastAsOf">● —</span></div><div class="forecast-grid"><div class="card forecast"><div class="forecast-hero" id="forecastHero"></div><div class="chart tall"><canvas id="forecastChart"></canvas></div></div><div class="card uncertainty"><h2>Prediction confidence</h2><div class="ring" id="confRing">—<small>CONFIDENCE</small></div><p id="confDesc"></p><hr>Onset probability <b id="confOnset">—</b><hr>Break probability <b id="confBreak">—</b><hr>Heavy-rain probability <b id="confHeavy">—</b></div></div><div class="card compare"><h2>30-Day Weekly Probability Trend</h2><div class="chart medium"><canvas id="rainChart"></canvas></div></div></section>
+<section class="page" id="forecast"><div class="page-title"><div><h2 data-i18n="page_forecast_title">Probabilistic Forecast</h2><p data-i18n="forecast_sub">Real model output + a documented uncertainty-widening timeline.</p></div><span class="live" id="forecastAsOf">● —</span></div><div class="forecast-grid"><div class="card forecast"><div class="forecast-hero" id="forecastHero"></div><div class="chart tall"><canvas id="forecastChart"></canvas></div></div><div class="card uncertainty"><h2 data-i18n="pred_confidence">Prediction confidence</h2><div class="ring" id="confRing">—<small data-i18n="confidence_caps">CONFIDENCE</small></div><p id="confDesc"></p><hr><span data-i18n="onset_probability_label">Onset probability</span> <b id="confOnset">—</b><hr><span data-i18n="break_probability_label">Break probability</span> <b id="confBreak">—</b><hr><span data-i18n="heavy_probability_label">Heavy-rain probability</span> <b id="confHeavy">—</b></div></div><div class="card compare"><h2 data-i18n="weekly_trend_title">30-Day Weekly Probability Trend</h2><div class="chart medium"><canvas id="rainChart"></canvas></div></div></section>
 
-<section class="page" id="advisory"><div class="page-title"><div><h2>Crop Advisory</h2><p>Turn model probabilities into concrete farm actions.</p></div></div><div class="advisory-layout"><div class="card crop-select"><h3>District's registered crop</h3><div id="advisoryCropChip"></div><h3 style="margin-top:14px">Estimated crop stage</h3><div id="advisoryStage" style="font-size:9px;color:#a9c0ca"></div></div><div class="card advice-main" id="adviceMain"></div></div></section>
+<section class="page" id="advisory"><div class="page-title"><div><h2 data-i18n="page_advisory_title">Crop Advisory</h2><p data-i18n="advisory_sub">Turn model probabilities into concrete farm actions.</p></div></div><div class="advisory-layout"><div class="card crop-select"><h3 data-i18n="registered_crop">District's registered crop</h3><div id="advisoryCropChip"></div><h3 style="margin-top:14px" data-i18n="crop_stage">Estimated crop stage</h3><div id="advisoryStage" style="font-size:9px;color:#a9c0ca"></div></div><div class="card advice-main" id="adviceMain"></div></div></section>
 
-<section class="page" id="analytics"><div class="page-title"><div><h2>Model Analytics & Explainable AI</h2><p>Real, honestly-reported evaluation metrics -- not inflated.</p></div></div><div class="analytics"><div class="card"><h2>Test-set R² (2015&ndash;2023 holdout, real IMD rainfall labels)</h2><div id="r2Scores"></div></div><div class="card"><h2>Why does the model predict this?</h2><p class="muted" id="fiSubtitle">Global feature importance -- not per-prediction</p><div class="switch" id="fiSwitch" style="padding:0 0 10px"><button class="sel" data-target="onset">Onset</button><button data-target="break">Break</button><button data-target="heavy">Heavy</button></div><div id="fiFeatures"></div></div></div></section>
+<section class="page" id="analytics"><div class="page-title"><div><h2 data-i18n="page_analytics_title">Model Analytics & Explainable AI</h2><p data-i18n="analytics_sub">Real, honestly-reported evaluation metrics -- not inflated.</p></div></div><div class="analytics"><div class="card"><h2 data-i18n="r2_title">Test-set R² (2015&ndash;2023 holdout, real IMD rainfall labels)</h2><div id="r2Scores"></div></div><div class="card"><h2 data-i18n="fi_page_title">Why does the model predict this?</h2><p class="muted" id="fiSubtitle" data-i18n="fi_page_sub">Global feature importance -- not per-prediction</p><div class="switch" id="fiSwitch" style="padding:0 0 10px"><button class="sel" data-target="onset" data-i18n="tab_onset">Onset</button><button data-target="break" data-i18n="th_break">Break</button><button data-target="heavy" data-i18n="th_heavy">Heavy</button></div><div id="fiFeatures"></div></div></div></section>
 
-<section class="page" id="alerts"><div class="page-title"><div><h2>Alert Center</h2><p>Highest-severity advisories across all 423 districts, live.</p></div></div><div class="alert-list" id="alertList"></div></section>
+<section class="page" id="alerts"><div class="page-title"><div><h2 data-i18n="page_alerts_title">Alert Center</h2><p data-i18n="alerts_sub">Highest-severity advisories across all 423 districts, live.</p></div></div><div class="alert-list" id="alertList"></div></section>
 
-<section class="page" id="farmer"><div class="page-title"><div><h2>Farmer Mode</h2><p>What a farmer sees over WhatsApp, in their own language.</p></div></div><div class="farmer-mode"><div class="phone"><div class="notch"></div><small>9:41　　● ● ●</small><p id="fLocation">📍 —</p><div class="fweather">🌧️ <b id="fTemp">—<small>—</small></b></div><div class="fcard green" id="fOnsetCard"><span><b>मानसून आने की संभावना</b><strong id="fOnset">—</strong></span></div><div class="fcard yellow" id="fBreakCard"><span><b>सावधानी: सूखा पड़ सकता है</b><strong id="fBreak">—</strong></span></div><div class="fadv"><b>आज की सलाह</b><p id="fAdvice">—</p></div><small id="fFarmerCount" style="display:block;text-align:center;margin-top:8px;color:#4b7a68"></small></div><div class="farmer-info"><h2>Why Farmer Mode?</h2><p>The same real forecast + advisory a farmer gets over our WhatsApp bot, shown here in the farmer's own language (Hindi) for review -- not a separate demo dataset.</p><h3>🌦️ Weather</h3><small>Real district-level forecast</small><h3>🌾 Crop</h3><small>The district's actual registered crop</small><h3>🔔 Delivery</h3><small>Sent automatically when a farmer messages our WhatsApp number</small></div></div></section>
+<section class="page" id="farmer"><div class="page-title"><div><h2 data-i18n="page_farmer_title">Farmer Mode</h2><p data-i18n="farmer_sub">What a farmer sees over WhatsApp, in their own language.</p></div></div><div class="farmer-mode"><div class="phone"><div class="notch"></div><small>9:41　　● ● ●</small><p id="fLocation">📍 —</p><div class="fweather">🌧️ <b id="fTemp">—<small>—</small></b></div><div class="fcard green" id="fOnsetCard"><span><b>मानसून आने की संभावना</b><strong id="fOnset">—</strong></span></div><div class="fcard yellow" id="fBreakCard"><span><b>सावधानी: सूखा पड़ सकता है</b><strong id="fBreak">—</strong></span></div><div class="fadv"><b>आज की सलाह</b><p id="fAdvice">—</p></div><small id="fFarmerCount" style="display:block;text-align:center;margin-top:8px;color:#4b7a68"></small></div><div class="farmer-info"><h2 data-i18n="why_farmer_mode">Why Farmer Mode?</h2><p data-i18n="why_farmer_mode_p">The same real forecast + advisory a farmer gets over our WhatsApp bot, shown here in the farmer's own language (Hindi) for review -- not a separate demo dataset.</p><h3 data-i18n="weather_h3">🌦️ Weather</h3><small data-i18n="weather_h3_sub">Real district-level forecast</small><h3 data-i18n="crop_h3">🌾 Crop</h3><small data-i18n="crop_h3_sub">The district's actual registered crop</small><h3 data-i18n="delivery_h3">🔔 Delivery</h3><small data-i18n="delivery_h3_sub">Sent automatically when a farmer messages our WhatsApp number</small></div></div></section>
 </div>
 <footer>Foresight • Hyperlocal Monsoon Intelligence • SIH 2026 / SIH26086</footer>
 </main></div>

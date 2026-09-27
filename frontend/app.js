@@ -19,20 +19,12 @@ async function api(path) {
   return r.json();
 }
 
-// ---------- rain background + nav (unchanged mechanics) ----------
-for (let i = 0; i < 100; i++) {
-  const d = document.createElement('i');
-  d.className = 'drop';
-  d.style.left = Math.random() * 100 + '%';
-  d.style.animationDuration = (0.7 + Math.random() * 1.5) + 's';
-  d.style.animationDelay = (-Math.random() * 2) + 's';
-  $('#rain').appendChild(d);
-}
-const PAGE_NAMES = { overview: 'Overview', risk: 'Risk Map', forecast: 'Forecast', advisory: 'Advisory', analytics: 'Analytics', alerts: 'Alert Center', farmer: 'Farmer Mode' };
+// ---------- nav ----------
 function show(n) {
   $$('.page').forEach((x) => x.classList.toggle('active', x.id === n));
   $$('.nav').forEach((x) => x.classList.toggle('active', x.dataset.page === n));
-  $('#title').textContent = PAGE_NAMES[n];
+  currentPage = n;
+  $('#title').textContent = t('page_' + n);
   window.scrollTo(0, 0);
   // Chart.js computes canvas size at creation/update time -- a chart
   // updated while its page is display:none (any page but the one
@@ -57,23 +49,153 @@ let currentForecast = null, currentAdvisory = null, currentFarmers = null;
 let overviewMap, riskMapInstance;
 let overviewMarkers = {}, riskMarkers = {};
 let outlookChartInstance, forecastChartInstance, rainChartInstance;
+let currentLang = 'en';
+let currentPage = 'overview';
+let lastAlertFeed = null;
 
-const FEATURE_LABELS = { lat: 'Latitude', lon: 'Longitude', coastal: 'Coastal proximity', dry_belt: 'Dry-belt region', oni: 'ENSO (ONI)', dmi: 'IOD (DMI)', mjo_amplitude: 'MJO amplitude', mjo_phase: 'MJO phase', month: 'Month / season' };
+const FEATURE_LABELS = {
+  en: { lat: 'Latitude', lon: 'Longitude', coastal: 'Coastal proximity', dry_belt: 'Dry-belt region', oni: 'ENSO (ONI)', dmi: 'IOD (DMI)', mjo_amplitude: 'MJO amplitude', mjo_phase: 'MJO phase', month: 'Month / season' },
+  hi: { lat: 'अक्षांश', lon: 'देशांतर', coastal: 'तटीय निकटता', dry_belt: 'सूखा-क्षेत्र', oni: 'ENSO (ONI)', dmi: 'IOD (DMI)', mjo_amplitude: 'MJO तीव्रता', mjo_phase: 'MJO चरण', month: 'महीना / मौसम' },
+};
 const CROP_EMOJI = { Rice: '🌾', Paddy: '🌾', Wheat: '🌾', 'Wheat/Paddy': '🌾', Maize: '🌽', Cotton: '♡', Sugarcane: '🎋', Groundnut: '◌', Grapes: '🍇', Soybean: '🌱', Tea: '🍃', Coffee: '☕', Jute: '🌿', Bajra: '🌾', Jowar: '🌾', 'Tur Dal': '🌱', Tapioca: '🥔' };
-const SEV_LABEL = { info: 'Routine', caution: 'Caution', warning: 'Moderate Risk', critical: 'High Risk' };
+const SEV_LABEL = {
+  en: { info: 'Routine', caution: 'Caution', warning: 'Moderate Risk', critical: 'High Risk' },
+  hi: { info: 'सामान्य', caution: 'सावधानी', warning: 'मध्यम जोखिम', critical: 'उच्च जोखिम' },
+};
 const SEV_ICON = { critical: '▲', warning: '▲', caution: '●', info: '↟' };
 // Real, fixed test-set numbers from ml/README.md (genuine time-based holdout,
 // 2015-2023) -- not fetched live since these don't change per-request; kept
 // here as documented constants, honestly labeled, not invented.
 const R2_SCORES = { onset: { r2: 0.41, mae: 0.180 }, break: { r2: 0.41, mae: 0.178 }, heavy: { r2: 0.09, mae: 0.016 } };
 
+// ---------- i18n ----------
+const I18N = {
+  en: {
+    nav_overview: 'Overview', nav_risk: 'Risk Map', nav_forecast: 'Forecast', nav_advisory: 'Advisory', nav_analytics: 'Analytics', nav_alerts: 'Alert Center', nav_farmer: 'Farmer Mode',
+    page_overview: 'Overview', page_risk: 'Risk Map', page_forecast: 'Forecast', page_advisory: 'Advisory', page_analytics: 'Analytics', page_alerts: 'Alert Center', page_farmer: 'Farmer Mode',
+    system_label: 'MONSOON INTELLIGENCE SYSTEM',
+    tagline_b: 'Real model. Real climate data.', tagline_p: '7–30 day district-level forecasts',
+    filter_state: 'State', filter_district: 'District', filter_horizon: 'Forecast Horizon', today_label: 'Today:',
+    days_7: '7 Days', days_14: '14 Days', days_30: '30 Days',
+    metric_onset: 'Monsoon Onset', metric_break: 'Dry Spell / Break', metric_heavy: 'Heavy Rain',
+    map_title: '◈ District-wise Risk Map', map_sub: 'Live probability, 423 districts nationally',
+    tab_onset: 'Onset', tab_break: 'Dry Spell', tab_heavy: 'Heavy Rain', th_break: 'Break', th_heavy: 'Heavy', th_week: 'Week',
+    legend_low: '● Low Risk (0–40%)', legend_mod: '● Moderate (41–70%)', legend_high: '● High (71–100%)',
+    outlook_title: '◔ 30-Day Monsoon Outlook', outlook_sub: 'Real model output for the selected district',
+    drivers_title: 'Key Climate Drivers', live_tag: '(live)',
+    weather_sub: 'Live conditions (Open-Meteo)', humidity: 'Humidity', wind: 'Wind', precip: 'Precip',
+    next_hours: 'Next Hours', quick_actions: 'Quick Actions', download_report: 'Download Report', share_dashboard: 'Share Dashboard', send_advisory: 'Send Advisory',
+    timeline_title: '◌ Monsoon Timeline', timeline_sub: '(Next 30 Days, weekly)',
+    crop_advisory_title: '♧ Crop Advisory', view_all: 'View all →',
+    prob_trend_title: '⇅ 30-Day Probability Trend',
+    confidence_title: '◒ Model Confidence', todays_forecast: "Today's forecast", fi_title: 'Real global feature importance',
+    recent_alerts: '♧ Recent Alerts',
+    page_risk_title: 'Risk Intelligence Map', risk_sub: 'Explore district-level monsoon risks nationally.',
+    page_forecast_title: 'Probabilistic Forecast', forecast_sub: 'Real model output + a documented uncertainty-widening timeline.',
+    pred_confidence: 'Prediction confidence', confidence_caps: 'CONFIDENCE',
+    onset_probability_label: 'Onset probability', break_probability_label: 'Break probability', heavy_probability_label: 'Heavy-rain probability',
+    weekly_trend_title: '30-Day Weekly Probability Trend',
+    page_advisory_title: 'Crop Advisory', advisory_sub: 'Turn model probabilities into concrete farm actions.',
+    registered_crop: "District's registered crop", crop_stage: 'Estimated crop stage',
+    page_analytics_title: 'Model Analytics & Explainable AI', analytics_sub: 'Real, honestly-reported evaluation metrics -- not inflated.',
+    r2_title: 'Test-set R² (2015–2023 holdout, real IMD rainfall labels)',
+    fi_page_title: 'Why does the model predict this?', fi_page_sub: 'Global feature importance -- not per-prediction',
+    page_alerts_title: 'Alert Center', alerts_sub: 'Highest-severity advisories across all 423 districts, live.',
+    page_farmer_title: 'Farmer Mode', farmer_sub: 'What a farmer sees over WhatsApp, in their own language.',
+    why_farmer_mode: 'Why Farmer Mode?', why_farmer_mode_p: 'The same real forecast + advisory a farmer gets over our WhatsApp bot, shown here in the farmer’s own language (Hindi) for review — not a separate demo dataset.',
+    weather_h3: '🌦️ Weather', weather_h3_sub: 'Real district-level forecast', crop_h3: '🌾 Crop', crop_h3_sub: "The district's actual registered crop", delivery_h3: '🔔 Delivery', delivery_h3_sub: 'Sent automatically when a farmer messages our WhatsApp number',
+    conf_high: 'High Confidence', conf_mod: 'Moderate Confidence', conf_low: 'Low Confidence',
+    week_high_risk: 'High Risk', week_heavy_risk: 'Heavy Rain Risk', week_favourable: 'Favourable', week_monitoring: 'Monitoring',
+    inf_high: 'High Influence', inf_mod: 'Moderate Influence', inf_low: 'Low Influence',
+    real_ensemble: 'Real ensemble output', next_days: 'Next {n} days',
+    farmer_none: 'No farmers registered in this area yet',
+    weather_at: 'Weather at', cond_rain: 'Rain', cond_clear: 'Clear', week_n: 'Week {n}',
+    sowing_calendar_note: 'Based on the typical sowing calendar for {crop} — this district\'s real registered crop, not a hypothetical selection.',
+    recommended_action: 'Recommended action',
+    selected_district: 'SELECTED DISTRICT', what_it_means: 'What it means',
+    monsoon_onset_caps: 'MONSOON ONSET', real_model_output_for: 'Real model output for', climate_data_as_of: 'climate data as of',
+    confidence_decay_note: 'Confidence decays with forecast horizon in a documented way — not false precision on a 30-day-out prediction. See the project README.',
+    why_advice: 'Why this advice?', why_advice_body: 'Rule-based: current onset/break/heavy-rain probabilities + a crop-stage heuristic, matched against a documented threshold table — not a black box.',
+    elevated_break_warn: 'elevated break-monsoon (dry spell) probability detected.',
+  },
+  hi: {
+    nav_overview: 'अवलोकन', nav_risk: 'जोखिम मानचित्र', nav_forecast: 'पूर्वानुमान', nav_advisory: 'सलाह', nav_analytics: 'विश्लेषण', nav_alerts: 'अलर्ट सेंटर', nav_farmer: 'किसान मोड',
+    page_overview: 'अवलोकन', page_risk: 'जोखिम मानचित्र', page_forecast: 'पूर्वानुमान', page_advisory: 'सलाह', page_analytics: 'विश्लेषण', page_alerts: 'अलर्ट सेंटर', page_farmer: 'किसान मोड',
+    system_label: 'मानसून इंटेलिजेंस सिस्टम',
+    tagline_b: 'असली मॉडल। असली जलवायु डेटा।', tagline_p: '7–30 दिन का जिला-स्तरीय पूर्वानुमान',
+    filter_state: 'राज्य', filter_district: 'जिला', filter_horizon: 'पूर्वानुमान अवधि', today_label: 'आज:',
+    days_7: '7 दिन', days_14: '14 दिन', days_30: '30 दिन',
+    metric_onset: 'मानसून आगमन', metric_break: 'सूखा दौर / ब्रेक', metric_heavy: 'भारी बारिश',
+    map_title: '◈ जिला-वार जोखिम मानचित्र', map_sub: 'लाइव संभावना, 423 जिले राष्ट्रव्यापी',
+    tab_onset: 'आगमन', tab_break: 'सूखा दौर', tab_heavy: 'भारी बारिश', th_break: 'ब्रेक', th_heavy: 'भारी', th_week: 'सप्ताह',
+    legend_low: '● कम जोखिम (0–40%)', legend_mod: '● मध्यम (41–70%)', legend_high: '● उच्च (71–100%)',
+    outlook_title: '◔ 30-दिन मानसून पूर्वानुमान', outlook_sub: 'चयनित जिले के लिए वास्तविक मॉडल परिणाम',
+    drivers_title: 'मुख्य जलवायु चालक', live_tag: '(लाइव)',
+    weather_sub: 'लाइव स्थिति (Open-Meteo)', humidity: 'नमी', wind: 'हवा', precip: 'वर्षा',
+    next_hours: 'अगले घंटे', quick_actions: 'त्वरित कार्य', download_report: 'रिपोर्ट डाउनलोड करें', share_dashboard: 'डैशबोर्ड साझा करें', send_advisory: 'सलाह भेजें',
+    timeline_title: '◌ मानसून समयरेखा', timeline_sub: '(अगले 30 दिन, साप्ताहिक)',
+    crop_advisory_title: '♧ फसल सलाह', view_all: 'सभी देखें →',
+    prob_trend_title: '⇅ 30-दिन संभावना रुझान',
+    confidence_title: '◒ मॉडल विश्वास', todays_forecast: 'आज का पूर्वानुमान', fi_title: 'वास्तविक वैश्विक फीचर महत्व',
+    recent_alerts: '♧ हाल के अलर्ट',
+    page_risk_title: 'जोखिम इंटेलिजेंस मानचित्र', risk_sub: 'राष्ट्रव्यापी जिला-स्तरीय मानसून जोखिम देखें।',
+    page_forecast_title: 'संभाव्य पूर्वानुमान', forecast_sub: 'वास्तविक मॉडल परिणाम + एक प्रलेखित अनिश्चितता-विस्तार समयरेखा।',
+    pred_confidence: 'पूर्वानुमान विश्वास', confidence_caps: 'विश्वास',
+    onset_probability_label: 'आगमन संभावना', break_probability_label: 'ब्रेक संभावना', heavy_probability_label: 'भारी वर्षा संभावना',
+    weekly_trend_title: '30-दिन साप्ताहिक संभावना रुझान',
+    page_advisory_title: 'फसल सलाह', advisory_sub: 'मॉडल संभावनाओं को ठोस खेत कार्यों में बदलें।',
+    registered_crop: 'जिले की पंजीकृत फसल', crop_stage: 'अनुमानित फसल चरण',
+    page_analytics_title: 'मॉडल विश्लेषण और व्याख्यात्मक AI', analytics_sub: 'वास्तविक, ईमानदारी से रिपोर्ट किए गए मूल्यांकन मीट्रिक — बढ़ा-चढ़ाकर नहीं।',
+    r2_title: 'टेस्ट-सेट R² (2015–2023 होल्डआउट, वास्तविक IMD वर्षा लेबल)',
+    fi_page_title: 'मॉडल यह पूर्वानुमान क्यों करता है?', fi_page_sub: 'वैश्विक फीचर महत्व — प्रति-पूर्वानुमान नहीं',
+    page_alerts_title: 'अलर्ट सेंटर', alerts_sub: 'सभी 423 जिलों में उच्चतम-गंभीरता की सलाह, लाइव।',
+    page_farmer_title: 'किसान मोड', farmer_sub: 'एक किसान को WhatsApp पर अपनी भाषा में क्या दिखता है।',
+    why_farmer_mode: 'किसान मोड क्यों?', why_farmer_mode_p: 'वही वास्तविक पूर्वानुमान + सलाह जो एक किसान को हमारे WhatsApp बॉट पर मिलती है, यहाँ समीक्षा के लिए किसान की अपनी भाषा (हिन्दी) में दिखाई गई है — कोई अलग डेमो डेटा नहीं।',
+    weather_h3: '🌦️ मौसम', weather_h3_sub: 'वास्तविक जिला-स्तरीय पूर्वानुमान', crop_h3: '🌾 फसल', crop_h3_sub: 'जिले की वास्तविक पंजीकृत फसल', delivery_h3: '🔔 डिलीवरी', delivery_h3_sub: 'जब कोई किसान हमारे WhatsApp नंबर पर संदेश भेजता है तो स्वचालित रूप से भेजा जाता है',
+    conf_high: 'उच्च विश्वास', conf_mod: 'मध्यम विश्वास', conf_low: 'कम विश्वास',
+    week_high_risk: 'उच्च जोखिम', week_heavy_risk: 'भारी वर्षा जोखिम', week_favourable: 'अनुकूल', week_monitoring: 'निगरानी',
+    inf_high: 'उच्च प्रभाव', inf_mod: 'मध्यम प्रभाव', inf_low: 'कम प्रभाव',
+    real_ensemble: 'वास्तविक एन्सेंबल परिणाम', next_days: 'अगले {n} दिन',
+    farmer_none: 'इस क्षेत्र में अभी तक कोई किसान पंजीकृत नहीं',
+    weather_at: 'मौसम -', cond_rain: 'बारिश', cond_clear: 'साफ', week_n: 'सप्ताह {n}',
+    sowing_calendar_note: '{crop} के लिए विशिष्ट बुवाई कैलेंडर पर आधारित — यह जिले की वास्तविक पंजीकृत फसल है, कोई काल्पनिक चयन नहीं।',
+    recommended_action: 'अनुशंसित कार्रवाई',
+    selected_district: 'चयनित जिला', what_it_means: 'इसका मतलब',
+    monsoon_onset_caps: 'मानसून आगमन', real_model_output_for: 'के लिए वास्तविक मॉडल परिणाम', climate_data_as_of: 'जलवायु डेटा दिनांक',
+    confidence_decay_note: 'विश्वास पूर्वानुमान अवधि के साथ एक प्रलेखित तरीके से घटता है — 30-दिन दूर के पूर्वानुमान पर झूठी सटीकता नहीं। प्रोजेक्ट README देखें।',
+    why_advice: 'यह सलाह क्यों?', why_advice_body: 'नियम-आधारित: वर्तमान आगमन/ब्रेक/भारी-वर्षा संभावनाएं + फसल-चरण अनुमान, एक प्रलेखित सीमा तालिका के विरुद्ध मिलान — कोई ब्लैक बॉक्स नहीं।',
+    elevated_break_warn: 'ऊंची ब्रेक-मानसून (सूखा दौर) संभावना पाई गई।',
+  },
+};
+function t(key) { return I18N[currentLang][key] ?? I18N.en[key] ?? key; }
+function applyStaticI18n() {
+  document.documentElement.lang = currentLang;
+  $$('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  $('#title').textContent = t('page_' + currentPage);
+}
+
 function pct(x) { return Math.round(x * 100) + '%'; }
 function cropEmoji(crop) { return CROP_EMOJI[crop] || '🌱'; }
-function metricLabel(m) { return m === 'onset_probability' ? 'Onset' : m === 'break_probability' ? 'Dry Spell' : 'Heavy Rain'; }
+function metricLabel(m) { return m === 'onset_probability' ? t('tab_onset') : m === 'break_probability' ? t('tab_break') : t('tab_heavy'); }
 function riskColor(p) { return p >= 71 ? '#ef5262' : p >= 41 ? '#f0bd42' : '#35d69a'; }
 function district(id) { return DISTRICTS.find((d) => d.district_id === id); }
 function snapshotFor(id) { return SNAPSHOT.find((d) => d.district_id === id); }
-function confLabel(c) { return c >= 0.75 ? 'High Confidence' : c >= 0.5 ? 'Moderate Confidence' : 'Low Confidence'; }
+function confLabel(c) { return c >= 0.75 ? t('conf_high') : c >= 0.5 ? t('conf_mod') : t('conf_low'); }
+function av(a, field) { return a[field + '_' + currentLang] || a[field + '_en']; } // advisory field in current language
+
+$('#langSelect').onchange = (e) => {
+  currentLang = e.target.value;
+  applyStaticI18n();
+  if (currentForecast) {
+    renderMetrics(); renderOutlookChart(); renderDrivers(); renderOverviewFI();
+    renderWeeks(); renderCropAdvisoryMini(); renderProbTable(); renderConfidence();
+    renderRiskSelectedPanel(); renderForecastPage(); renderAdvisoryPage(); renderFarmerMode();
+    renderWeather(district(selectedDistrictId));
+  }
+  renderAnalyticsR2();
+  renderFeatureImportancePage();
+  if (lastAlertFeed) renderAlerts(lastAlertFeed);
+};
 
 // ---------- boot ----------
 async function boot() {
@@ -226,8 +348,8 @@ function renderMetrics() {
   $('#m-break-conf').textContent = label;
   $('#m-heavy-conf').textContent = label;
   $('#m-onset-note').textContent = `${currentForecast.district_name}, ${currentForecast.state}`;
-  $('#m-break-note').textContent = `Next ${horizonDays} days`;
-  $('#m-heavy-note').textContent = 'Real ensemble output';
+  $('#m-break-note').textContent = t('next_days').replace('{n}', horizonDays);
+  $('#m-heavy-note').textContent = t('real_ensemble');
 }
 
 // ---------- Overview: outlook chart ----------
@@ -243,9 +365,9 @@ function renderOutlookChart() {
 
 // ---------- Overview: climate drivers (real values, simple honest heuristic for the influence label) ----------
 function influence(kind, idx) {
-  if (kind === 'enso') return Math.abs(idx.value) >= 1.5 ? 'High Influence' : Math.abs(idx.value) >= 0.5 ? 'Moderate Influence' : 'Low Influence';
-  if (kind === 'iod') return Math.abs(idx.value) >= 0.6 ? 'High Influence' : Math.abs(idx.value) >= 0.4 ? 'Moderate Influence' : 'Low Influence';
-  return idx.amplitude >= 1.5 ? 'High Influence' : idx.amplitude >= 0.8 ? 'Moderate Influence' : 'Low Influence';
+  if (kind === 'enso') return Math.abs(idx.value) >= 1.5 ? t('inf_high') : Math.abs(idx.value) >= 0.5 ? t('inf_mod') : t('inf_low');
+  if (kind === 'iod') return Math.abs(idx.value) >= 0.6 ? t('inf_high') : Math.abs(idx.value) >= 0.4 ? t('inf_mod') : t('inf_low');
+  return idx.amplitude >= 1.5 ? t('inf_high') : idx.amplitude >= 0.8 ? t('inf_mod') : t('inf_low');
 }
 function renderDrivers() {
   const c = currentForecast.climate_context;
@@ -259,7 +381,7 @@ function renderDrivers() {
 function barText(f) {
   const p = Math.round(f.importance * 100);
   const filled = Math.round((p / 100) * 7);
-  return `${FEATURE_LABELS[f.feature] || f.feature}　${'█'.repeat(filled)}${'░'.repeat(7 - filled)}　${p}%`;
+  return `${FEATURE_LABELS[currentLang][f.feature] || f.feature}　${'█'.repeat(filled)}${'░'.repeat(7 - filled)}　${p}%`;
 }
 function renderOverviewFI() {
   if (!FI) return;
@@ -269,7 +391,7 @@ function renderFeatureImportancePage() {
   if (!FI) return;
   $('#fiFeatures').innerHTML = FI[activeFiTarget].map((f) => {
     const p = Math.round(f.importance * 100);
-    return `<p class="feature">${FEATURE_LABELS[f.feature] || f.feature} <i><u style="width:${p * 2}%"></u></i><b>${p}%</b></p>`;
+    return `<p class="feature">${FEATURE_LABELS[currentLang][f.feature] || f.feature} <i><u style="width:${p * 2}%"></u></i><b>${p}%</b></p>`;
   }).join('');
 }
 function renderAnalyticsR2() {
@@ -282,12 +404,12 @@ function renderAnalyticsR2() {
 
 // ---------- live weather (Open-Meteo, free, real) ----------
 async function renderWeather(d) {
-  $('#weatherTitle').textContent = '⌂ Weather at ' + d.name;
+  $('#weatherTitle').textContent = `⌂ ${t('weather_at')} ${d.name}`;
   $('#fLocation').textContent = `📍 ${d.name}, ${d.state}`;
   try {
     const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${d.lat}&longitude=${d.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation&hourly=temperature_2m,precipitation&timezone=auto`).then((r) => r.json());
     const cur = w.current;
-    const cond = cur.precipitation > 0.2 ? 'Rain' : 'Clear';
+    const cond = cur.precipitation > 0.2 ? t('cond_rain') : t('cond_clear');
     $('#weatherTemp').textContent = Math.round(cur.temperature_2m) + '°C';
     $('#weatherCond').textContent = cond;
     $('#weatherHumidity').textContent = cur.relative_humidity_2m + '%';
@@ -295,7 +417,7 @@ async function renderWeather(d) {
     $('#weatherPrecip').textContent = cur.precipitation + ' mm';
     $('#todayTemp').textContent = Math.round(cur.temperature_2m) + '°C';
     $('#todayCond').textContent = cond;
-    $('#fTemp').innerHTML = `${Math.round(cur.temperature_2m)}°C<small>${cond === 'Rain' ? 'आज बारिश' : 'आज साफ मौसम'}</small>`;
+    $('#fTemp').innerHTML = `${Math.round(cur.temperature_2m)}°C<small>${cur.precipitation > 0.2 ? 'आज बारिश' : 'आज साफ मौसम'}</small>`;
 
     const nowIdx = Math.max(0, w.hourly.time.findIndex((t) => new Date(t) >= new Date()));
     const hrs = [];
@@ -321,15 +443,15 @@ function weeklyBuckets() {
     const chunk = tl.filter((t) => t.day_offset >= w * 7 && t.day_offset < (w + 1) * 7);
     if (!chunk.length) continue;
     const avg = (k) => chunk.reduce((s, t) => s + t[k], 0) / chunk.length;
-    weeks.push({ label: `Week ${w + 1}`, range: `${chunk[0].date.slice(5)}–${chunk[chunk.length - 1].date.slice(5)}`, onset: avg('onset_probability'), brk: avg('break_probability'), heavy: avg('heavy_rain_probability') });
+    weeks.push({ label: t('week_n').replace('{n}', w + 1), range: `${chunk[0].date.slice(5)}–${chunk[chunk.length - 1].date.slice(5)}`, onset: avg('onset_probability'), brk: avg('break_probability'), heavy: avg('heavy_rain_probability') });
   }
   return weeks;
 }
 function weekStatus(wk) {
-  if (wk.brk >= 0.55) return 'High Risk';
-  if (wk.heavy >= 0.55) return 'Heavy Rain Risk';
-  if (wk.onset >= 0.6) return 'Favourable';
-  return 'Monitoring';
+  if (wk.brk >= 0.55) return t('week_high_risk');
+  if (wk.heavy >= 0.55) return t('week_heavy_risk');
+  if (wk.onset >= 0.6) return t('week_favourable');
+  return t('week_monitoring');
 }
 function renderWeeks() {
   $('#weeksRow').innerHTML = weeklyBuckets().map((wk) => `<div>${wk.label}<small>${wk.range}</small><em>${weekStatus(wk)}</em><b>${Math.round(wk.onset * 100)}%</b></div>`).join('');
@@ -337,11 +459,11 @@ function renderWeeks() {
 function renderProbTable() {
   const weeks = weeklyBuckets();
   const rows = weeks.map((wk) => `<tr><td>${wk.label}</td><td>${Math.round(wk.onset * 100)}%</td><td>${Math.round(wk.brk * 100)}%</td><td>${Math.round(wk.heavy * 100)}%</td></tr>`).join('');
-  $('#probTable').innerHTML = '<tr><th>Week</th><th>Onset</th><th>Break</th><th>Heavy</th></tr>' + rows;
+  $('#probTable').innerHTML = `<tr><th>${t('th_week')}</th><th>${t('tab_onset')}</th><th>${t('th_break')}</th><th>${t('th_heavy')}</th></tr>` + rows;
   const worst = weeks.reduce((a, b) => (b.brk > a.brk ? b : a), weeks[0]);
   if (worst && worst.brk >= 0.55) {
     $('#probWarn').style.display = 'block';
-    $('#probWarn').textContent = `⚠ ${worst.label}: elevated break-monsoon (dry spell) probability detected.`;
+    $('#probWarn').textContent = `⚠ ${worst.label}: ${t('elevated_break_warn')}`;
   } else {
     $('#probWarn').style.display = 'none';
   }
@@ -359,7 +481,7 @@ function renderRiskSelectedPanel() {
   if (!snap || !currentAdvisory) return;
   const p = Math.round(snap[activeMapMetric] * 100);
   $('#selectedPanel').innerHTML = `
-    <small>SELECTED DISTRICT</small>
+    <small>${t('selected_district')}</small>
     <h2>${d.name}</h2>
     <strong>${p}%</strong><em>${metricLabel(activeMapMetric)} probability</em>
     <hr>
@@ -367,15 +489,15 @@ function renderRiskSelectedPanel() {
     <p>Dry Spell <b>${Math.round(snap.break_probability * 100)}%</b></p>
     <p>Heavy Rain <b>${Math.round(snap.heavy_rain_probability * 100)}%</b></p>
     <hr>
-    <h3>What it means</h3>
-    <p>${currentAdvisory.advisory.message_en}</p>
+    <h3>${t('what_it_means')}</h3>
+    <p>${av(currentAdvisory.advisory, 'message')}</p>
     <button class="primary" onclick="show('advisory')">Open Crop Advisory →</button>`;
 }
 
 function renderForecastPage() {
   const c = currentForecast.current;
-  $('#forecastHero').innerHTML = `<div>MONSOON ONSET<strong>${pct(c.onset_probability)}</strong><em>${confLabel(c.confidence)}</em><p>Real model output for ${currentForecast.district_name}</p></div><span>🌧️</span>`;
-  $('#forecastAsOf').textContent = '● climate data as of ' + currentForecast.climate_context.as_of;
+  $('#forecastHero').innerHTML = `<div>${t('monsoon_onset_caps')}<strong>${pct(c.onset_probability)}</strong><em>${confLabel(c.confidence)}</em><p>${t('real_model_output_for')} ${currentForecast.district_name}</p></div><span>🌧️</span>`;
+  $('#forecastAsOf').textContent = `● ${t('climate_data_as_of')} ${currentForecast.climate_context.as_of}`;
 
   const labels = currentForecast.timeline.map((t) => t.date.slice(5));
   const opts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9bb1bd', font: { size: 8 } } } }, scales: { x: { grid: { color: '#12354a' }, ticks: { color: '#7895a5', font: { size: 8 } } }, y: { min: 0, max: 100, grid: { color: '#12354a' }, ticks: { color: '#7895a5', font: { size: 8 }, callback: (v) => v + '%' } } } };
@@ -391,7 +513,7 @@ function renderForecastPage() {
   });
 
   $('#confRing').innerHTML = `${pct(c.confidence)}<small>CONFIDENCE</small>`;
-  $('#confDesc').textContent = 'Confidence decays with forecast horizon in a documented way — not false precision on a 30-day-out prediction. See the project README.';
+  $('#confDesc').textContent = t('confidence_decay_note');
   $('#confOnset').textContent = pct(c.onset_probability);
   $('#confBreak').textContent = pct(c.break_probability);
   $('#confHeavy').textContent = pct(c.heavy_rain_probability);
@@ -412,19 +534,19 @@ function renderCropAdvisoryMini() {
   const d = district(selectedDistrictId);
   const a = currentAdvisory.advisory;
   $('#cropChip').innerHTML = `<span style="display:inline-block;background:#092338;border:1px solid #27a9a3;color:#fff;padding:5px 10px;border-radius:5px;font-size:8px">${cropEmoji(d.primary_crop)} ${d.primary_crop}</span>`;
-  $('#overviewAdvice').innerHTML = `<div>${cropEmoji(d.primary_crop)}</div><section><b>${d.primary_crop} <i>${SEV_LABEL[a.severity] || a.severity}</i></b><p>${a.message_en}</p><ul><li>${a.action_en}</li></ul></section>`;
+  $('#overviewAdvice').innerHTML = `<div>${cropEmoji(d.primary_crop)}</div><section><b>${d.primary_crop} <i>${SEV_LABEL[currentLang][a.severity] || a.severity}</i></b><p>${av(a, 'message')}</p><ul><li>${av(a, 'action')}</li></ul></section>`;
 }
 
 function renderAdvisoryPage() {
   const d = district(selectedDistrictId);
   const a = currentAdvisory.advisory;
   $('#advisoryCropChip').innerHTML = `<span style="display:inline-block;background:#0a3036;border:1px solid #29b89b;color:#fff;padding:6px 10px;border-radius:7px;font-size:9px">${cropEmoji(d.primary_crop)} ${d.primary_crop}</span>`;
-  $('#advisoryStage').textContent = `Based on the typical sowing calendar for ${d.primary_crop} — this district's real registered crop, not a hypothetical selection.`;
+  $('#advisoryStage').textContent = t('sowing_calendar_note').replace('{crop}', d.primary_crop);
   $('#adviceMain').innerHTML = `
-    <div class="advice-banner">${cropEmoji(d.primary_crop)}<div><small>${d.primary_crop.toUpperCase()} • ${currentAdvisory.district_name}</small><h2>${a.title_en}</h2><p>${a.message_en}</p></div></div>
-    <h3>Recommended action</h3>
-    <div class="actions"><div><b>01</b><span><strong>${a.action_en}</strong></span></div></div>
-    <div class="why"><b>Why this advice?</b><p>Rule-based: current onset/break/heavy-rain probabilities + a crop-stage heuristic, matched against a documented threshold table — not a black box. See <code>advisory_engine.py</code>.</p></div>`;
+    <div class="advice-banner">${cropEmoji(d.primary_crop)}<div><small>${d.primary_crop.toUpperCase()} • ${currentAdvisory.district_name}</small><h2>${av(a, 'title')}</h2><p>${av(a, 'message')}</p></div></div>
+    <h3>${t('recommended_action')}</h3>
+    <div class="actions"><div><b>01</b><span><strong>${av(a, 'action')}</strong></span></div></div>
+    <div class="why"><b>${t('why_advice')}</b><p>${t('why_advice_body')} See <code>advisory_engine.py</code>.</p></div>`;
 }
 
 function renderFarmerMode() {
@@ -440,18 +562,22 @@ function renderFarmerMode() {
 }
 
 // ---------- Alert Center ----------
+function renderAlerts(feed) {
+  const strip = feed.slice(0, 3).map((item) => `<span>${SEV_ICON[item.advisory.severity] || '●'} <strong>${SEV_LABEL[currentLang][item.advisory.severity] || item.advisory.severity}</strong> ${item.district_name}: ${av(item.advisory, 'title')}</span>`).join('');
+  $('#alertsStrip').innerHTML = `<b>${t('recent_alerts')} <i>${feed.length}</i></b>${strip}`;
+  $('#alertList').innerHTML = feed.map((item) => {
+    const cls = item.advisory.severity === 'critical' || item.advisory.severity === 'warning' ? 'high' : item.advisory.severity === 'caution' ? 'watch' : 'info';
+    return `<article class="alert ${cls}"><b>${SEV_ICON[item.advisory.severity] || '●'} ${(SEV_LABEL[currentLang][item.advisory.severity] || item.advisory.severity).toUpperCase()}</b><h3>${av(item.advisory, 'title')}</h3><p>${item.district_name}, ${item.state} • ${av(item.advisory, 'message')}</p></article>`;
+  }).join('');
+}
 async function refreshAlerts() {
   try {
-    const feed = await api('/advisory?limit=20');
-    const strip = feed.slice(0, 3).map((item) => `<span>${SEV_ICON[item.advisory.severity] || '●'} <strong>${SEV_LABEL[item.advisory.severity] || item.advisory.severity}</strong> ${item.district_name}: ${item.advisory.title_en}</span>`).join('');
-    $('#alertsStrip').innerHTML = `<b>♧ Recent Alerts <i>${feed.length}</i></b>${strip}`;
-    $('#alertList').innerHTML = feed.map((item) => {
-      const cls = item.advisory.severity === 'critical' || item.advisory.severity === 'warning' ? 'high' : item.advisory.severity === 'caution' ? 'watch' : 'info';
-      return `<article class="alert ${cls}"><b>${SEV_ICON[item.advisory.severity] || '●'} ${(SEV_LABEL[item.advisory.severity] || item.advisory.severity).toUpperCase()}</b><h3>${item.advisory.title_en}</h3><p>${item.district_name}, ${item.state} • ${item.advisory.message_en}</p></article>`;
-    }).join('');
+    lastAlertFeed = await api('/advisory?limit=20');
+    renderAlerts(lastAlertFeed);
   } catch (e) {
     console.error(e);
   }
 }
 
+applyStaticI18n();
 boot();
