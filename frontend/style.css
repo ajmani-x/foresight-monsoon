@@ -25,3 +25,136 @@
 .farmer-empty small{font-size:8px;line-height:1.5;max-width:220px}
 
 .leaflet-interactive{transition:r .15s ease}
+
+/* =========================================================================
+   REDESIGN -- distinct visual identity (violet/indigo instead of the
+   original sky-blue), new type family, overflow hardening, real phone support.
+   Everything below intentionally overrides selectors already declared above
+   (same specificity, later in the cascade wins) rather than editing the
+   single-line prototype rules in place.
+   ========================================================================= */
+
+/* ---- Typography: Plus Jakarta Sans replaces Inter, Caveat replaces Kalam ---- */
+body{font-family:'Plus Jakarta Sans',Arial,sans-serif;letter-spacing:.1px}
+.tagline,.farmer-quote{font-family:Caveat,cursive}
+.tagline{font-size:19px}
+.farmer-quote{font-size:17px}
+.brand b{font-family:'Plus Jakarta Sans',Arial,sans-serif;font-weight:800;letter-spacing:.2px}
+.page-title h2,.card-head h2,.selected h2,.alert h3,.advice-banner h2{font-family:'Plus Jakarta Sans',Arial,sans-serif;font-weight:700;letter-spacing:.15px}
+
+/* ---- Palette: violet/indigo primary identity (was sky-blue) ---- */
+body{background:#0a0917}
+.shell{background:radial-gradient(circle at 75% 5%,#5b3ec933,transparent 28%),linear-gradient(135deg,#0a0917,#150f2b 55%,#0a0916)}
+.g1{background:#00a0a31f}
+.g2{background:#6c3ce033}
+aside{background:#0d0a1cf2;border-right:1px solid #24204a}
+.cloud{color:#a48cff}
+.nav:hover,.nav.active{background:#5334b8;color:#fff}
+.farmer-quote strong{color:#5fe0be}
+header{background:#0d0a1cdf;border-bottom:1px solid #221d42}
+.head-left>span{color:#a48cff}
+.filters{background:#0c0a1cdd;border-bottom:1px solid #221d42}
+.filters select{background:#161230;border:1px solid #2c2657;color:#e3dcff}
+.sep{background:#241f47}
+.range,.tabs button,.switch button{background:#161230;border:1px solid #2c2657;color:#a99fce}
+.range.active,.tabs .sel,.switch .sel{background:#6c3ce0;color:#fff;border-color:#8b5cf6}
+.head-right button,.head-right select{background:#161230;border:1px solid #2c2657;color:#e3dcff}
+.head-right .user{background:#8fd6d0;color:#100b26}
+.card{background:linear-gradient(145deg,#140f2af5,#0a0716f5);border:1px solid #24204a}
+.card:hover{border-color:#4a3a8f}
+.metric{border-color:#3a2f6a}
+.c1{background:linear-gradient(120deg,#0d3346cc,#0a1b30)}
+.c3{background:linear-gradient(120deg,#20153fcc,#241a44);border-color:#5b46b0}
+.c3 em{background:#8b5cf644;color:#cdbcff}
+.driver>b{background:#221c48;color:#b9a6ff}
+.primary{background:#6c3ce0;border-color:#8b5cf6}
+.primary:hover{box-shadow:0 8px 22px #6c3ce055}
+.crop-tabs .sel{border-color:#5fe0be}
+.selected>strong{color:#5fe0be}
+.ring{border-color:#241f47;border-top-color:#5fe0be;border-right-color:#5fe0be}
+.legend{background:#0e0a1edd}
+.popup{background:#12102bdd;border-color:#4a3a8f}
+.popup button{background:#6c3ce0}
+.alert{background:#120f26;border-color:#241f47}
+.alert-list .alert.info{border-color:#40d5ac}
+.alert-list .alert.watch{border-color:#e3ba4d}
+.crop-select button{background:#140f26;border-color:#2c2657;color:#b8aed6}
+.crop-select button.selected{border-color:#5fe0be;background:#0e2b2a}
+.advice-banner{background:#140f26}
+.advice-banner h2{color:#f0c860}
+.actions>div{background:#100c22;border-color:#241f47}
+.actions b{background:#2b2358}
+.why{background:#10241f;border-left-color:#5fe0be}
+.score u,.feature u{background:#7c5cff}
+.feature b{color:#7c5cff}
+
+/* ---- Overflow hardening: dynamic model/climate text must never clip ---- */
+.driver,.popup,.selected,.advice-banner,.crop-select button,.alert h3,.alert p,
+.feature,.score,.metric,.card-head h2,.advisory .card-head,.alerts-strip,
+.weather-main aside,.confidence p{overflow-wrap:anywhere;word-break:break-word}
+.driver{grid-template-columns:22px minmax(0,1fr) minmax(46px,auto) 22px minmax(0,1fr) minmax(46px,auto) 22px minmax(0,1fr) minmax(46px,auto)}
+.feature{grid-template-columns:minmax(90px,130px) minmax(0,1fr) 40px}
+.score{grid-template-columns:minmax(60px,80px) minmax(46px,auto) minmax(0,1fr)}
+.score b{white-space:nowrap}
+.advice-banner{min-width:0}
+.advice-banner>div{min-width:0}
+.advice-banner small{display:block;white-space:normal}
+.card-head{gap:8px}
+.card-head>div{min-width:0}
+.tabs{flex-wrap:wrap;justify-content:flex-end}
+.alerts-strip{grid-template-columns:minmax(110px,150px) repeat(3,minmax(0,1fr))}
+.alerts-strip span{overflow-wrap:anywhere}
+.today{white-space:normal;text-align:right}
+.forecast-hero{flex-wrap:wrap;gap:8px}
+.selected h2,.selected>strong{overflow-wrap:anywhere}
+main{overflow-x:hidden}
+.grid,.risk-layout,.forecast-grid,.advisory-layout,.analytics{min-width:0}
+.grid>*,.risk-layout>*,.forecast-grid>*,.advisory-layout>*,.analytics>*{min-width:0}
+
+/* ---- Real mobile support: a genuine phone breakpoint, and a fixed header ---- */
+@media(max-width:800px){
+  /* the language selector must stay reachable on mobile -- undo the old
+     display:none and keep a compact header instead */
+  .head-right{display:flex;gap:5px;margin-left:auto}
+  .head-right .user{display:none}
+  .head-left{min-width:0}
+  header{padding:0 12px;gap:6px}
+  /* the original rule here was `.main{margin-left:62px}` -- the element is
+     <main> with no class, so it never applied and left a dead gap next to
+     the icon-rail sidebar; target the real element instead */
+  main{margin-left:62px;width:calc(100% - 62px)}
+}
+@media(max-width:520px){
+  /* keep the icon-only nav rail (set up by the 800px breakpoint above) --
+     removing it entirely would leave phone users with no way to switch pages */
+  aside{width:52px}
+  .main,main{margin-left:52px;width:calc(100% - 52px)}
+  .nav{padding:10px 4px;font-size:17px}
+  header{height:auto;flex-wrap:wrap;padding:10px 12px;gap:6px}
+  .head-left{gap:6px}
+  .head-left small{display:none}
+  .head-left h1{font-size:15px}
+  .head-right{font-size:8px}
+  .filters{padding:10px 12px}
+  .filters label{min-width:120px}
+  .today{margin-left:0;text-align:left;width:100%}
+  .page{padding:12px 12px 20px}
+  .metrics{gap:8px}
+  .metric{min-height:auto;padding:12px}
+  .metric strong{font-size:22px}
+  /* fixed card heights from the desktop layout leave large empty gaps once
+     content reflows to one column on phone -- let these cards size to content */
+  .map-card,.outlook,.weather,.advisory,.rainfall,.confidence{height:auto;min-height:0}
+  .map-card #map{height:260px}
+  .bigmap #riskMap{height:340px}
+  .forecast-hero>span{font-size:40px}
+  .forecast-hero strong{font-size:30px}
+  .selected>strong{font-size:32px}
+  .ring{width:100px;height:100px;font-size:20px}
+  .advice-banner{font-size:36px;flex-wrap:wrap}
+  .advice>div{width:48px;height:64px;font-size:30px}
+  .farmer-mode{gap:20px}
+  .phone{width:100%;max-width:310px}
+  .alerts-strip{grid-template-columns:1fr}
+  .page-title{flex-wrap:wrap;gap:6px}
+}
