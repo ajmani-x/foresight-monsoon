@@ -92,7 +92,8 @@ header{background:#0d0a1cdf;border-bottom:1px solid #221d42}
 .driver,.popup,.selected,.advice-banner,.crop-select button,.alert h3,.alert p,
 .feature,.score,.metric,.card-head h2,.advisory .card-head,.alerts-strip,
 .weather-main aside,.confidence p{overflow-wrap:anywhere;word-break:break-word}
-.driver{grid-template-columns:22px minmax(0,1fr) minmax(46px,auto) 22px minmax(0,1fr) minmax(46px,auto) 22px minmax(0,1fr) minmax(46px,auto)}
+.driver{grid-template-columns:22px minmax(34px,1fr) minmax(46px,auto) 22px minmax(34px,1fr) minmax(46px,auto) 22px minmax(34px,1fr) minmax(46px,auto)}
+.driver>span{overflow-wrap:normal}
 .feature{grid-template-columns:minmax(90px,130px) minmax(0,1fr) 40px}
 .score{grid-template-columns:minmax(60px,80px) minmax(46px,auto) minmax(0,1fr)}
 .score b{white-space:nowrap}
