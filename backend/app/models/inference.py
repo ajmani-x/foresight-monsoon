@@ -96,6 +96,36 @@ def predict_district(district_id: str, lat: float, lon: float, coastal: int, dry
     return onset, brk, heavy
 
 
+TREE_MODEL_NAMES = ("xgb", "rf", "gbr")
+
+
+def get_feature_importance() -> dict:
+    """Real, global feature importance per target, averaged across the
+    ensemble's tree-based sub-models (XGBoost, Random Forest, Gradient
+    Boosting). Ridge is excluded -- linear coefficients aren't directly
+    comparable to tree-based importances, and substituting one would be
+    misleading rather than honest. This is dataset-wide importance, not a
+    per-prediction explanation (no SHAP/per-request explainability here)."""
+    bundle = _load_bundle()
+    features = bundle["features"]
+
+    out = {}
+    for target, model in bundle["models"].items():
+        sums = {f: 0.0 for f in features}
+        count = 0
+        for name, estimator in model.named_estimators_.items():
+            if name not in TREE_MODEL_NAMES or not hasattr(estimator, "feature_importances_"):
+                continue
+            for f, imp in zip(features, estimator.feature_importances_):
+                sums[f] += float(imp)
+            count += 1
+        averaged = {f: (v / count if count else 0.0) for f, v in sums.items()}
+        ranked = sorted(averaged.items(), key=lambda kv: kv[1], reverse=True)
+        out[target] = [{"feature": f, "importance": round(v, 4)} for f, v in ranked]
+
+    return out
+
+
 def predict_batch(rows: list[dict]) -> list[tuple[float, float, float]]:
     """Same model, same features as predict_district, but for many
     districts at once in 3 vectorized .predict() calls (one per target)

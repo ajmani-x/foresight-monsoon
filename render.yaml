@@ -17,11 +17,11 @@ services:
     runtime: static
     plan: free
     rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    envVars:
-      - key: VITE_API_BASE_URL
-        sync: false  # set this manually after the backend deploys — see README
+    buildCommand: ""  # plain static HTML/CSS/JS -- no build step, no framework.
+                       # The backend URL is chosen at runtime in app.js by
+                       # hostname (localhost vs the deployed backend), not
+                       # baked in at build time, so no env var is needed here.
+    staticPublishPath: .
     routes:
       - type: rewrite
         source: /*

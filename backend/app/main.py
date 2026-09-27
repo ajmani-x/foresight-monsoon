@@ -3,12 +3,12 @@ import threading
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import advisory, districts, farmers, forecast, whatsapp
+from app.routers import advisory, districts, farmers, forecast, model_info, whatsapp
 from app.services.mock_data import get_all_districts_snapshot
 
 app = FastAPI(
     title="Foresight API",
-    description="Hyperlocal monsoon onset & break prediction system (block/district scale)",
+    description="Hyperlocal monsoon onset & break prediction system (district scale)",
     version="0.1.0",
 )
 
@@ -33,6 +33,7 @@ app.include_router(forecast.router)
 app.include_router(advisory.router)
 app.include_router(farmers.router)
 app.include_router(whatsapp.router)
+app.include_router(model_info.router)
 
 
 @app.get("/api/health")
