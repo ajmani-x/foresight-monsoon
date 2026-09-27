@@ -158,3 +158,84 @@ main{overflow-x:hidden}
   .alerts-strip{grid-template-columns:1fr}
   .page-title{flex-wrap:wrap;gap:6px}
 }
+
+/* =========================================================================
+   ENHANCEMENT PASS -- more visual depth/richness: glow accents, gradient
+   text on hero numbers, glass-card top accent, drifting ambient light,
+   nav active indicator, custom scrollbar, staggered entrance.
+   ========================================================================= */
+
+/* ---- custom scrollbar ---- */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#0a0917}
+::-webkit-scrollbar-thumb{background:#2c2657;border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:#4a3a8f}
+
+/* ---- ambient drifting light (reuses the existing .glow blobs, no new markup) ---- */
+@keyframes drift1{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,-35px)}}
+@keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-45px,35px)}}
+.g1{animation:drift1 20s ease-in-out infinite}
+.g2{animation:drift2 24s ease-in-out infinite}
+body::before{content:'';position:fixed;top:-8%;left:38%;width:520px;height:520px;background:radial-gradient(circle,#8b5cf622,transparent 70%);filter:blur(110px);pointer-events:none;z-index:0;animation:drift2 28s ease-in-out infinite}
+
+/* ---- logo glow ---- */
+.cloud{filter:drop-shadow(0 0 14px #8b5cf680)}
+.brand b{background:linear-gradient(90deg,#e8f4fa,#cdbcff);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---- sidebar: glowing active indicator + pulsing status dot ---- */
+.nav{position:relative}
+.nav.active::before{content:'';position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,#8b5cf6,#5fe0be);box-shadow:0 0 12px #8b5cf699}
+.nav.active{text-shadow:0 0 14px #8b5cf680}
+.online:first-letter{text-shadow:0 0 8px #35d99c}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.35}}
+.online{position:relative}
+
+/* ---- header: soft gradient underline ---- */
+header{position:sticky}
+header::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,#8b5cf666,#5fe0be55,transparent)}
+
+/* ---- cards: top accent line + glass depth ---- */
+.card{position:relative;backdrop-filter:blur(6px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#7c5cff,#5fe0be,transparent);opacity:.55}
+.card-head h2{display:flex;align-items:center;gap:6px}
+
+/* ---- hero numbers: gradient "glow" text instead of flat color ---- */
+.c1 strong{background:linear-gradient(90deg,#7fe3ff,#38bdf8);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 24px #38bdf833}
+.c2 strong{background:linear-gradient(90deg,#ffdf8a,#f0bd42);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 24px #f0bd4233}
+.c3 strong{background:linear-gradient(90deg,#cdbcff,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 24px #8b5cf633}
+.selected>strong{background:linear-gradient(90deg,#7ff0cd,#5fe0be);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 30px #5fe0be40}
+.forecast-hero strong{background:linear-gradient(90deg,#7fe3ff,#38bdf8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ring{box-shadow:0 0 30px #5fe0be26,inset 0 0 20px #00000040}
+.weeks b{background:linear-gradient(90deg,#e8f4fa,#b9a6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---- buttons: gradient fills instead of flat blue/violet ---- */
+.primary{background:linear-gradient(135deg,#8257ff,#5b34c9);position:relative;overflow:hidden}
+.range.active,.tabs .sel,.switch .sel{background:linear-gradient(135deg,#8257ff,#5b34c9)}
+.crop-tabs .sel{background:linear-gradient(135deg,#1c4d46,#0e2b2a)}
+.popup button{background:linear-gradient(135deg,#8257ff,#5b34c9)}
+.phone>button{background:linear-gradient(135deg,#1d8a6a,#156b52)}
+
+/* ---- metrics/alerts: subtle icon glow ---- */
+.metric>span{filter:drop-shadow(0 0 8px #ffffff22)}
+.alert{position:relative}
+.alert::before{content:'';position:absolute;left:-1px;top:10%;bottom:10%;width:3px;background:currentColor;filter:blur(3px);opacity:.5;color:#eb5061}
+.alert.watch::before{color:#e3ba4d}
+.alert.info::before{color:#40d5ac}
+
+/* ---- feature/score bars: gentle glow on fill ---- */
+.score u,.feature u{box-shadow:0 0 10px #7c5cff70}
+
+/* ---- staggered entrance for the overview metric cards + top row ---- */
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.metrics>.metric{animation:rise .5s ease backwards}
+.metrics>.metric:nth-child(1){animation-delay:.02s}
+.metrics>.metric:nth-child(2){animation-delay:.08s}
+.metrics>.metric:nth-child(3){animation-delay:.14s}
+.top>.card,.bottom>.card{animation:rise .5s ease backwards}
+.top>.card:nth-child(1){animation-delay:.05s}
+.top>.card:nth-child(2){animation-delay:.11s}
+.top>.card:nth-child(3){animation-delay:.17s}
+.bottom>.card:nth-child(1){animation-delay:.05s}
+.bottom>.card:nth-child(2){animation-delay:.1s}
+.bottom>.card:nth-child(3){animation-delay:.15s}
+.bottom>.card:nth-child(4){animation-delay:.2s}
