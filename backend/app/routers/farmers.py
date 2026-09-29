@@ -3,10 +3,11 @@ from typing import Literal, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from app.services.farmer_store import FarmerProfile, get_farmer, list_farmers, upsert_farmer
+from app.services.farmer_store import FarmerProfile, delete_farmer, get_farmer, list_farmers, upsert_farmer
 from app.services.geocoding import geocode_place
 from app.services.llm_advisory import generate_personalized_advisory
 from app.services.mock_data import get_forecast_for_coordinates
+from app.services.whatsapp_state import clear as clear_whatsapp_state
 
 router = APIRouter(prefix="/api/farmers", tags=["farmers"])
 
@@ -66,6 +67,18 @@ def read_farmer(phone: str):
 @router.get("")
 def all_farmers():
     return list_farmers()
+
+
+@router.delete("/{phone}")
+def remove_farmer(phone: str):
+    """Delete a farmer's profile (and any leftover WhatsApp registration
+    state) so their number re-triggers registration on their next
+    message -- useful for demo/testing resets."""
+    if not get_farmer(phone):
+        raise HTTPException(status_code=404, detail="Farmer not found")
+    delete_farmer(phone)
+    clear_whatsapp_state(phone)
+    return {"deleted": phone}
 
 
 @router.post("/{phone}/advisory")

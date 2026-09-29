@@ -42,3 +42,7 @@ def get_farmer(phone: str) -> Optional[FarmerProfile]:
 
 def list_farmers() -> list[FarmerProfile]:
     return [FarmerProfile(**record) for record in db.list_all(NAMESPACE)]
+
+
+def delete_farmer(phone: str) -> None:
+    db.delete(NAMESPACE, phone)
